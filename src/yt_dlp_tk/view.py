@@ -1,9 +1,10 @@
 # Interface class, the View of MVP.
 
-from .yt_funcs.core import VideoInfo
+from .yt_funcs.core import VideoInfo, FormatType
 from .utils import attr_dict
 from .interface import ExEntry, ExTree
 from .protocols import Presenter
+from .logging import get_logger, add_handler
 from tkinter import ttk, constants as tkconst
 from dataclasses import dataclass
 import tkinter as tk
@@ -42,8 +43,17 @@ class YtdlptkInterface(tk.Tk):
         entry.pack()
         widgets.enURL = entry
 
+        def _get_video_info(btn: ttk.Button):
+            from .interface import TkBusyCommand, InState
+            import time
+            with InState(btn, ('disabled',)):
+                with TkBusyCommand(widgets.frMain, widgets.frMain):
+                    btn.update()
+                    time.sleep(1)
+                    presenter.get_video_info()
+
         button = ttk.Button(frame, text="Get Video Info",
-                            command=presenter.get_video_info)
+                            command=lambda: _get_video_info(button))
         button.pack()
         widgets.btSearch = button
 
@@ -70,9 +80,11 @@ class YtdlptkInterface(tk.Tk):
             Column('Csize', "File Size"),
             Column('Cbitrate', "Average Bitrate")
         ]
-        tree = ExTree(frame, show='headings', scrolly=True,
+        tree = ExTree(frame, scrolly=True,
                       columns=[c.as_tuple() for c in COLUMNS],
                       height=20)
+        tree.column("#0", width=150, minwidth=150)
+        tree.heading("#0", text="Format Type")
         tree.pack()
         widgets.trFormats = tree
 
@@ -86,6 +98,11 @@ class YtdlptkInterface(tk.Tk):
         return entry.get()
 
     def update_video_info(self, info: VideoInfo):
+        logger = get_logger('view.update')
+
+        logger.info("Updating interface with video info.")
+        logger.debug("%s", info)
+
         widgets = self.widgets
 
         label: ttk.Label = widgets.lbTitle
@@ -97,5 +114,30 @@ class YtdlptkInterface(tk.Tk):
         label = widgets.lbAgegate
         label.config(text=str(info.age_limit >= 18))
 
+        # Add formats to the tree
         tree: ExTree = widgets.trFormats
-        formats = info.formats
+        tree.clear()
+
+        audio_root = tree.insert('', 'end', text="Audio", open=True)
+        video_root = tree.insert('', 'end', text="Video", open=True)
+
+        last_format = None
+        logger.debug("%d formats", len(info.formats))
+        for fmt in info.formats:
+
+            if fmt == last_format:
+                logger.debug("Skipped %s", fmt.fmtname)
+                continue
+
+            last_format = fmt
+
+            match fmt.fmttype:
+                case FormatType.AUDIO:
+                    logger.debug("Added format: %s", fmt.fmtname)
+                    values = (fmt.fmtname, '', '', fmt.samplerate, '', fmt.bitrate)
+                    tree.insert(audio_root, 'end', values=values)
+
+                case FormatType.VIDEO:
+                    logger.debug("Added format: %s", fmt.fmtname)
+                    values = (fmt.fmtname, '', '', fmt.framerate, '', fmt.bitrate)
+                    tree.insert(video_root, 'end', values=values)
