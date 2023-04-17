@@ -69,7 +69,7 @@ _rootLogger: Logger
 
 def _init_root_logger(): # pyright: ignore
     global _rootLogger
-    _rootLogger = get_logger('yt_dlp_tk')
+    _rootLogger = get_logger('yt_dlp_tk', stream=False)
     add_handler(_rootLogger, 'null')
     #warnings.filterwarnings('once', category=DebugWarning)
 
@@ -121,7 +121,7 @@ def add_handler(logger: Logger, kind: Literal['stream', 'file', 'stack', 'null']
     assert hdl is not None
     logger.addHandler(hdl)
 
-def get_logger(name: str="", level: Level=DEFAULT_LEVEL, stream: bool=False) -> Logger:
+def get_logger(name: str="", level: Level=DEFAULT_LEVEL, stream: bool=True) -> Logger:
     """
     Returns a logger with the specified NAME.
 
