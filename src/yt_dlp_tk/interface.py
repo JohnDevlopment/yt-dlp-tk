@@ -147,7 +147,20 @@ class InState:
     def __init__(self, owner: _SupportsStateMethods, state_spec: _StateSpec):
         self.owner = owner
         self.state_spec = state_spec
-        self.old_state: str = owner.state(None)
+        self.old_state: _StateSpec = ()
+
+        if state_spec in ['normal', 'disabled']:
+            self.old_state = 'normal' if state_spec == 'disabled' else 'disabled'
+        else:
+            flags = []
+            for st in state_spec:
+                flags.append(
+                    f"!{st}" if not st.startswith("!") else st[1:]
+                )
+
+            self.old_state = tuple(flags)
+
+        print(f"old state: {self.old_state}, new state: {self.state_spec}")
 
     def __enter__(self):
         self.owner.state(self.state_spec)
