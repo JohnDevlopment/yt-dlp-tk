@@ -99,4 +99,3 @@ class YtdlptkInterface(tk.Tk):
 
         tree: ExTree = widgets.trFormats
         formats = info.formats
-        

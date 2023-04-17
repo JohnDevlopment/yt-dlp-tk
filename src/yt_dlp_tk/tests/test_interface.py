@@ -76,7 +76,7 @@ class TestExText:
     # def test_scrollbar(self, text: ExText) -> None:
     #     text.configure(scrolly=True)
     #     assert text.y_scrollbar_mapped
-        
+
     #     text.configure(scrolly=False)
     #     assert not text.y_scrollbar_mapped
 

@@ -140,7 +140,7 @@ class VideoInfo:
     @classmethod
     def create(cls, opts: dict[str, Any]) -> Self:
         import itertools
-        
+
         kw: dict[str, Any] = {}
 
         live_status: str = opts['live_status']

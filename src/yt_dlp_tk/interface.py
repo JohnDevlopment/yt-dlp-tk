@@ -387,7 +387,7 @@ class ExTree(ttk.Treeview, _WidgetMixin):
 
             scrolly = if true, add a vertical scrollbar
             scrollx = if true, add a horizontal scrollbar
-            columns = write-only, only present in init. 
+            columns = write-only, only present in init.
                       Specify the IDs, headings, and widths
                       of columns
 
@@ -420,7 +420,7 @@ class ExTree(ttk.Treeview, _WidgetMixin):
         # Special option: columns
         column_ids: list[str] = []
 
-        if isinstance(columns, list):            
+        if isinstance(columns, list):
             for cid, hd, _ in columns:
                 column_ids.append(cid)
 
