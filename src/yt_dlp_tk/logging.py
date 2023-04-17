@@ -84,8 +84,9 @@ def add_handler(logger: Logger, kind: Literal['stream', 'file', 'stack', 'null']
                  if omitted, defaults to sys.stderr
 
     file:
-      * mode = same as the mode argument in open()
+      * mode = same as the mode argument in open() (default: 'wt')
       * encoding = same as the encoding argumet in open()
+      * file = the name of the file
 
     stack:
       * limit = size limit for the record stack
