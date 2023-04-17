@@ -466,6 +466,22 @@ class ExTree(ttk.Treeview, _WidgetMixin):
 
         self.override_geomtry_methods(ttk.Treeview)
 
+    def add_root(self, iid: str | None=None, **kw: Any) -> str:
+        """Add a root node."""
+        root = self.insert('', 0, iid, **kw)
+        self.set_meta('_root', root)
+        return root
+
+    @property
+    def root(self) -> str:
+        """The root item."""
+        return self.get_meta('root', '')
+
+    def clear(self) -> None:
+        """Clear the tree."""
+        children = self.get_children()
+        self.delete(*children)
+
     def cget(self, key: str) -> Any:
         if self.resource_defined(key):
             return self.get_custom_resource(key)
