@@ -93,6 +93,50 @@ class _WidgetMixin:
 
         return self._metadata.get(key, default)
 
+class TkBusyCommand(tk.Widget):
+    """A class representing "tk busy" command.
+
+    Use the hold() and forget() methods to mark a window as busy.
+
+    This class can be instantiated in a 'with' statement: the window is automatically held
+    and released as one exits the context.
+    """
+    def __init__(self, master: tk.Widget, window, /):
+        """
+        Construct a TkBusyCommand object.
+
+        MASTER is the Tk master of this class.
+        WINDOW is the Widget that you intend to mark as busy.
+        """
+        super().__init__(master, 'frame')
+        self._root = master
+        self._tk = self._root.tk
+        self._widget = window
+
+    def forget(self):
+        """Releases the busy-hold on the widget and its descendents."""
+        if self.is_busy:
+            self._tk.call('tk', 'busy', 'forget', self._widget)
+            self._tk.call('update')
+
+    def hold(self):
+        """Makes the window appear busy."""
+        if not self.is_busy:
+            self._tk.call('tk', 'busy', 'hold', self._widget)
+            self._tk.call('update')
+
+    @property
+    def is_busy(self) -> bool:
+        """True if the window is busy."""
+        return tk.getboolean(self._tk.call('tk', 'busy', 'status', self._widget))
+
+    def __enter__(self):
+        self.hold()
+        return self
+
+    def __exit__(self, *args):
+        self.forget()
+
 class InState:
     """
     Used for temporary state changes of widgets.
