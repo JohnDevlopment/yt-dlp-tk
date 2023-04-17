@@ -73,6 +73,26 @@ class _WidgetMixin:
         # Return true if KEY is defined in self._options
         return key in self.__options
 
+    def set_meta(self, key: str, value: Any) -> None:
+        """Set the meta field KEY to VALUE."""
+        if not hasattr(self, '_metadata'):
+            self._metadata: dict[str, Any] = {}
+
+        if not isinstance(key, str):
+            raise TypeError("key must be a string")
+
+        self._metadata[key] = value
+
+    def get_meta(self, key: str, default: Any=None) -> Any:
+        """Get the meta field KEY, or DEFAULT if it does not exist."""
+        if not hasattr(self, '_metadata'):
+            self._metadata: dict[str, Any] = {}
+
+        if not isinstance(key, str):
+            raise TypeError("key must be a string")
+
+        return self._metadata.get(key, default)
+
 class InState:
     """
     Used for temporary state changes of widgets.
