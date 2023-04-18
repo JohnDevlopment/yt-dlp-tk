@@ -60,8 +60,14 @@ class YtdlptkInterface(tk.Tk):
          # Video field labels
         subframe = ttk.Frame(frame)
         subframe.pack()
-        for i, elt in enumerate([("Title", 'lbTitle'), ("Length", "lbLength"),
-                                 ("Age Restricted", "lbAgegate")]):
+
+        LABELS = [
+            ("Title", 'lbTitle'),
+            ("Length", "lbLength"),
+            ("Age Restricted", "lbAgegate")
+        ]
+
+        for i, elt in enumerate(LABELS):
             text, widget = elt
             ttk.Label(subframe, text=text, anchor=tkconst.E, padding="0 0 8")\
                .grid(row=i, column=0, sticky='w')
@@ -121,16 +127,8 @@ class YtdlptkInterface(tk.Tk):
         audio_root = tree.insert('', 'end', text="Audio", open=True)
         video_root = tree.insert('', 'end', text="Video", open=True)
 
-        last_format = None
         logger.debug("%d formats", len(info.formats))
         for fmt in info.formats:
-
-            if fmt == last_format:
-                logger.debug("Skipped %s", fmt.fmtname)
-                continue
-
-            last_format = fmt
-
             match fmt.fmttype:
                 case FormatType.AUDIO:
                     logger.debug("Added format: %s", fmt.fmtname)
