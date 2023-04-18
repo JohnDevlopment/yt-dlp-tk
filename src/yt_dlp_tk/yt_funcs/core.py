@@ -61,12 +61,15 @@ class FormatType(Enum):
 @dataclass(slots=True)
 class Format:
     fmtname: str
+    fmtid: str
     fmttype: FormatType
+    codecs: str
     bitrate: float
     samplerate: float
     framerate: float
-    rate_unit: str
-    codecs: str
+    resolution: str
+    width: int
+    height: int
 
     @classmethod
     def create(cls: Type[Format], _format: dict[str, Any], /) -> Format:
@@ -75,6 +78,7 @@ class Format:
 
         _FORMAT needs:
             * tbr
+            * format_id
           If Audio Format:
             * acodec
             * asr
@@ -83,6 +87,9 @@ class Format:
             * vcodec
             * fps
             * vbr
+            * resolution
+            * width
+            * height
         """
         vc = _format['vcodec'] if _format['vcodec'] != 'none' else ''
         ac = _format['acodec'] if _format['acodec'] != 'none' else ''
@@ -124,7 +131,20 @@ class Format:
             case _:
                 codecs = "unknown"
 
-        return cls(fn, format_type, br, sr, fr, ru, codecs)
+        kw: dict[str, Any] = {
+            'fmtname': fn,
+            'fmttype': format_type,
+            'bitrate': br,
+            'samplerate': sr,
+            'framerate': fr,
+            'codecs': codecs,
+            'width': _format.get('width', 0),
+            'height': _format.get('height', 0),
+            'resolution': _format.get('resolution', ''),
+            'fmtid': _format['format_id']
+        }
+
+        return cls(**kw)
 
 @dataclass
 class VideoInfo:
