@@ -1,13 +1,18 @@
 # Interface class, the View of MVP.
 
+from __future__ import annotations
 from .yt_funcs.core import VideoInfo, FormatType
-from .utils import attr_dict
+from .utils import InvalidSignal, attr_dict
 from .interface import ExEntry, ExTree
 from .protocols import Presenter
-from .logging import get_logger, add_handler
+from .logging import get_logger
 from tkinter import ttk, constants as tkconst
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 import tkinter as tk
+
+if TYPE_CHECKING:
+    from typing import Any
 
 @dataclass
 class Column:
@@ -77,8 +82,25 @@ class YtdlptkInterface(tk.Tk):
             label.grid(row=i, column=1, sticky='w')
             widgets[widget] = label
 
+         # Format field entries
+        subframe = ttk.Frame(frame)
+        subframe.pack()
+
+        entry = ExEntry(subframe, width=5, text='Video Format')
+        entry.pack(side=tkconst.LEFT)
+        widgets.enVideo = entry
+
+        entry = ExEntry(subframe, width=5, text='Audio Format')
+        entry.pack(side=tkconst.LEFT)
+        widgets.enAudio = entry
+
+        ttk.Button(frame, text='Download',
+                   command=lambda: self.download_video(presenter))\
+           .pack()
+
          # Treeview
         COLUMNS = [
+            Column('Cid', "ID"),
             Column('Cformat', "Format"),
             Column('Cextension', "Extension"),
             Column('Cresolution', "Resolution"),
@@ -86,16 +108,60 @@ class YtdlptkInterface(tk.Tk):
             Column('Csize', "File Size"),
             Column('Cbitrate', "Average Bitrate")
         ]
+
         tree = ExTree(frame, scrolly=True,
                       columns=[c.as_tuple() for c in COLUMNS],
+                      displaycolumns=['Cformat', 'Cresolution',
+                                      'Crate', 'Csize', 'Cbitrate'],
+                      selectmode=tkconst.BROWSE,
                       height=20)
+
         tree.column("#0", width=150, minwidth=150)
         tree.heading("#0", text="Format Type")
         tree.pack()
+        tree.on_item_doubleclicked.connect(self)
         widgets.trFormats = tree
 
         # Add frames to notebook
         nb.add(widgets.frDownloadVideos, text="Video Downloader")
+
+    def on_notify(self, sig: str, obj: ExTree, *args, **kw: str):
+        logger = get_logger('view.signals')
+
+        if sig != 'item_doubleclicked':
+            raise InvalidSignal(sig)
+
+        column = kw['column']
+
+        if kw['region'] != 'cell' or column == '#0':
+            return
+
+        item = kw['row']
+        if item in ['Iaudio', 'Ivideo']:
+            return
+
+        tree: ExTree = self.widgets.trFormats
+
+        logger.debug("Selected item %s. Its parent is %s.", item,
+                     tree.parent(item))
+        logger.debug("Selected column %s.", column)
+
+        # Get list of values from item
+        values = tree.item(item, 'values')
+        assert values
+
+        # Format type, audio or video
+        what = tree.parent(item)[1:].lower()
+        assert what in ('audio', 'video')
+
+        fmtid: str = values[0]
+        logger.info("Selected %s format %s.", what, fmtid)
+
+        entry: ExEntry = self.widgets.enAudio if what == 'audio' else self.widgets.enVideo
+        entry.delete(0, 'end')
+        entry.insert(0, fmtid)
+
+    # Properties
 
     @property
     def url(self) -> str:
@@ -103,7 +169,25 @@ class YtdlptkInterface(tk.Tk):
         entry: ExEntry = self.widgets.enURL
         return entry.get()
 
+    @property
+    def format(self) -> str:
+        """The format code to use in ."""
+        w = self.widgets
+        vf: str = w.enVideo.get()
+        af: str = w.enAudio.get()
+        return "+".join((vf, af))
+
+    ###
+
+    def download_video(self, presenter: Presenter):
+        """Download the video."""
+        from .interface import TkBusyCommand
+        with TkBusyCommand(self.widgets.frMain, self.widgets.frMain):
+            self.update()
+            presenter.download_video()
+
     def update_video_info(self, info: VideoInfo):
+        """Update the GUI with info about a video."""
         logger = get_logger('view.update')
 
         logger.info("Updating interface with video info.")
@@ -124,18 +208,18 @@ class YtdlptkInterface(tk.Tk):
         tree: ExTree = widgets.trFormats
         tree.clear()
 
-        audio_root = tree.insert('', 'end', text="Audio", open=True)
-        video_root = tree.insert('', 'end', text="Video", open=True)
+        tree.insert('', 'end', text="Audio", open=True, iid='Iaudio')
+        tree.insert('', 'end', text="Video", open=True, iid='Ivideo')
 
         logger.debug("%d formats", len(info.formats))
         for fmt in info.formats:
             match fmt.fmttype:
                 case FormatType.AUDIO:
                     logger.debug("Added format: %s", fmt.fmtname)
-                    values = (fmt.fmtname, '', '', fmt.samplerate, '', fmt.bitrate)
-                    tree.insert(audio_root, 'end', values=values)
+                    values = (fmt.fmtid, fmt.fmtname, '', '', fmt.samplerate, '', fmt.bitrate)
+                    tree.insert('Iaudio', 'end', values=values)
 
                 case FormatType.VIDEO:
                     logger.debug("Added format: %s", fmt.fmtname)
-                    values = (fmt.fmtname, '', '', fmt.framerate, '', fmt.bitrate)
-                    tree.insert(video_root, 'end', values=values)
+                    values = (fmt.fmtid, fmt.fmtname, '', '', fmt.framerate, '', fmt.bitrate)
+                    tree.insert('Ivideo', 'end', values=values)

@@ -11,7 +11,6 @@ class Presenter:
         self.model = model
         self.view = view
         self.view.create_interface(self)
-        self.logger = get_logger('backend', stream=True)
 
     def run(self) -> None:
         self.view.mainloop()
@@ -20,5 +19,11 @@ class Presenter:
         result = self.model.get_video_info(self.view.url)
         if result.ok is not None:
             info = result.ok
-            self.logger.debug("Video Info: %s", info)
             self.view.update_video_info(info)
+
+    def download_video(self) -> None:
+        self.model.download_video(
+            self.view.url,
+            self.view.format,
+            get_logger('backend.youtube')
+        )

@@ -4,9 +4,8 @@ from __future__ import annotations
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 from ..logging import get_logger
-from ..utils import Result, ErrorEnum, unique
+from ..utils import ErrorEnum, unique
 from enum import Enum
-# from yt_dlp.postprocessor.common import PostProcessor
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, overload
 
@@ -181,6 +180,30 @@ class VideoInfo:
     def __str__(self) -> str:
         return f"{self.title} | {self.url}, duration: {self.duration}, live: {self.is_live}, " \
             + f"age restriction: {self.age_limit or None}, {len(self.formats)} formats"
+
+def download_video(url: str, format_: str, **kw: Any):
+    """
+    Download the video from URL in the given FORMAT_.
+
+    Raises yt_dlp.utils.DownloadError if
+    an error occurs during download. It
+    is aliased as Yt_DownloadError here.
+
+    **KW contains keyword options supported
+    by yt_dlp.YoutubeDL.
+    """
+    opts: dict[str, Any] = {
+        'quiet': False,
+        'dump_single_json': False,
+        'format': format_,
+        'age_limit': 18,
+        'restrictfilenames': True,
+        'simulate': False
+    }
+    opts.update(kw)
+
+    with YoutubeDL(opts) as ydl:
+        ydl.download([url])
 
 @overload
 def extract_video_info(url: str) -> VideoInfo:

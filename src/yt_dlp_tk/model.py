@@ -1,8 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from .utils import Result
-from .yt_funcs.core import extract_video_info, DownloadError as Yt_DownloadError, VideoInfo, YTErrors
+from .yt_funcs.core import (extract_video_info, download_video,
+                            DownloadError, VideoInfo, YTErrors)
 from .data import zipped_info
+from .logging import Logger
 import gzip
 
 if TYPE_CHECKING:
@@ -23,7 +25,10 @@ class Model:
 
         try:
             self.video_info = extract_video_info(url)
-        except Yt_DownloadError as exc:
+        except DownloadError:
             return Result(None, YTErrors.DOWNLOADERROR)
 
         return Result(self.video_info, YTErrors.OK)
+
+    def download_video(self, url: str, format_: str, logger: Logger):
+        download_video(url, format_, logger=logger)
