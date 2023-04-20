@@ -477,6 +477,11 @@ class ExTree(ttk.Treeview, _WidgetMixin):
             y_scrollbar_changed(state: bool)
                 * The vertical scrollbar has changed, either
                   true if it is enabled or false otherwise
+
+            item_doubleclicked(*, region: str, column: str, row: str, element: str)
+                * The user has double-clicked the tree. Keyword arguments denoting the
+                  region ('heading', 'separator', 'tree', 'cell', or 'nothing'); the
+                  column (#0 being the tree column); the row; and the element, are provided.
         """
         logger = self.logger = get_logger('gui.widgets.ExTree', stream=True)
 
@@ -486,6 +491,9 @@ class ExTree(ttk.Treeview, _WidgetMixin):
 
         self.on_y_scrollbar_changed = signal('y_scrollbar_changed', self)
         self.on_y_scrollbar_changed.connect(self)
+
+        self.on_item_doubleclicked = signal('item_doubleclicked', self)
+        self.on_item_doubleclicked.connect(self)
 
         self.frame = ttk.Frame(master)
         self.xbar = ttk.Scrollbar(self.frame, orient=tkconst.HORIZONTAL, command=self.xview)
@@ -522,6 +530,17 @@ class ExTree(ttk.Treeview, _WidgetMixin):
         self.pack()
 
         self.override_geomtry_methods(ttk.Treeview)
+
+        self.bind('<Double-1>', self._eventcb_doubleclicked)
+
+    def _eventcb_doubleclicked(self, event: tk.Event):
+        x, y = event.x, event.y
+        region = self.identify_region(x, y)
+        column = self.identify_column(x)
+        row = self.identify_row(y)
+        element = self.identify_element(x, y)
+
+        return self.on_item_doubleclicked.emit(region=region, column=column, row=row, element=element)
 
     def add_root(self, iid: str | None=None, **kw: Any) -> str:
         """Add a root node."""
@@ -572,6 +591,9 @@ class ExTree(ttk.Treeview, _WidgetMixin):
                     self.ybar.pack(side=tkconst.RIGHT, fill=tkconst.Y)
                 else:
                     self.ybar.pack_forget()
+
+            case 'item_doubleclicked':
+                pass
 
             case _: # pragma: no cover
                 raise InvalidSignalError(sig)
