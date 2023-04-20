@@ -13,8 +13,7 @@ if TYPE_CHECKING:
     _StateSpec = Literal['normal', 'disabled'] | tuple[str, ...]
 
 class _SupportsStateMethods(Protocol):
-    def state(self, *args) -> Any:
-        ...
+    def state(self, *args) -> Any: ...
 
 class _ResourceManager:
     __slots__ = ('resources',)
@@ -351,12 +350,6 @@ class ExText(tk.Text, _WidgetMixin):
         if test:
             callback(*args, **kw)
 
-    # if __debug__:
-    #     @property
-    #     def y_scrollbar_mapped(self) -> bool:
-    #         """True if the y scrollbar is mapped."""
-    #         return self.ybar.winfo_ismapped()
-
 class ExEntry(ttk.Entry, _WidgetMixin):
     """Extended entry widget."""
 
@@ -453,7 +446,24 @@ class ExEntry(ttk.Entry, _WidgetMixin):
                 raise InvalidSignalError(sig)
 
 class ExTree(ttk.Treeview, _WidgetMixin):
-    """Extended treeview widget."""
+    """
+    Extended treeview widget.
+
+    Signals:
+
+        x_scrollbar_changed()
+            * The horizontal scrollbar has changed, either
+              true if it is enabled or false otherwise
+
+        y_scrollbar_changed(state: bool)
+            * The vertical scrollbar has changed, either
+              true if it is enabled or false otherwise
+
+        item_doubleclicked(*, region: str, column: str, row: str, element: str)
+            * The user has double-clicked the tree. Keyword arguments denoting the
+              region ('heading', 'separator', 'tree', 'cell', or 'nothing'); the
+              column (#0 being the tree column); the row; and the element, are provided.
+    """
 
     def __init__(self, master: _Widget=None,
                  scrolly: bool=False, scrollx: bool=False,
@@ -467,21 +477,6 @@ class ExTree(ttk.Treeview, _WidgetMixin):
             columns = write-only, only present in init.
                       Specify the IDs, headings, and widths
                       of columns
-
-        SIGNALS
-
-            x_scrollbar_changed()
-                * The horizontal scrollbar has changed, either
-                  true if it is enabled or false otherwise
-
-            y_scrollbar_changed(state: bool)
-                * The vertical scrollbar has changed, either
-                  true if it is enabled or false otherwise
-
-            item_doubleclicked(*, region: str, column: str, row: str, element: str)
-                * The user has double-clicked the tree. Keyword arguments denoting the
-                  region ('heading', 'separator', 'tree', 'cell', or 'nothing'); the
-                  column (#0 being the tree column); the row; and the element, are provided.
         """
         logger = self.logger = get_logger('gui.widgets.ExTree', stream=True)
 
@@ -597,17 +592,6 @@ class ExTree(ttk.Treeview, _WidgetMixin):
 
             case _: # pragma: no cover
                 raise InvalidSignalError(sig)
-
-    if __debug__:
-        @property
-        def x_scrollbar_mapped(self) -> bool:
-            """True if the x scrollbar is mapped."""
-            return self.xbar.winfo_ismapped()
-
-        @property
-        def y_scrollbar_mapped(self) -> bool:
-            """True if the y scrollbar is mapped."""
-            return self.ybar.winfo_ismapped()
 
 ExEntry.override_init_docstring(ttk.Entry)
 ExText.override_init_docstring(tk.Text)
