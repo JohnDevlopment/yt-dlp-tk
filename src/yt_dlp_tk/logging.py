@@ -66,6 +66,7 @@ DEFAULT_LEVEL = _get_default_level()
 Logger = logging.Logger
 
 _rootLogger: Logger
+_cache: dict[str, Logger] = {}
 
 def _init_root_logger(): # pyright: ignore
     global _rootLogger
@@ -141,6 +142,8 @@ def get_logger(name: str="", level: Level=DEFAULT_LEVEL, stream: bool=True) -> L
     it defaults to the value of YTDLPTK_LEVEL
     if defined, or Level.INFO otherwise.
     """
+    global _cache
+
     # Return the root logger if name is "" or "yt_dlp_tk"
     parts = name.split(".")
     isroot = parts[0] == "" and len(parts) == 1
@@ -153,11 +156,16 @@ def get_logger(name: str="", level: Level=DEFAULT_LEVEL, stream: bool=True) -> L
         parts[0] = "yt_dlp_tk"
 
     name = ".".join(parts)
+
+    if name in _cache:
+        return _cache[name]
+
     logger = logging.getLogger(name)
     logger.setLevel(level)
     if stream: # pragma: no cover
         add_handler(logger, 'stream')
 
+    _cache[name] = logger
     return logger
 
 # if __debug__:
