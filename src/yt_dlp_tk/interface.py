@@ -209,13 +209,13 @@ class ExText(tk.Text, _WidgetMixin):
                 updated color of the background.
         """
         # Signals
-        self.on_state_changed = signal('state_changed')
+        self.on_state_changed = signal('state_changed', self)
         self.on_state_changed.connect(self)
 
-        self.on_y_scrollbar_changed = signal('y_scrollbar_changed')
+        self.on_y_scrollbar_changed = signal('y_scrollbar_changed', self)
         self.on_y_scrollbar_changed.connect(self)
 
-        self.on_background_changed = signal('background_changed')
+        self.on_background_changed = signal('background_changed', self)
         self.on_background_changed.connect(self)
 
         self.frame = ttk.Frame(master)
@@ -379,10 +379,10 @@ class ExEntry(ttk.Entry, _WidgetMixin):
                 The 'text' parameter has changed. Provides
                 the new string for the label.
         """
-        self.on_x_scrollbar_changed = signal('x_scrollbar_changed')
+        self.on_x_scrollbar_changed = signal('x_scrollbar_changed', self)
         self.on_x_scrollbar_changed.connect(self)
 
-        self.on_text_changed = signal('text_changed')
+        self.on_text_changed = signal('text_changed', self)
         self.on_text_changed.connect(self)
 
         self.frame = ttk.Frame(master, padding='0 0 0 16')
@@ -481,10 +481,10 @@ class ExTree(ttk.Treeview, _WidgetMixin):
         logger = self.logger = get_logger('gui.widgets.ExTree', stream=True)
 
         # Signals
-        self.on_x_scrollbar_changed = signal('x_scrollbar_changed')
+        self.on_x_scrollbar_changed = signal('x_scrollbar_changed', self)
         self.on_x_scrollbar_changed.connect(self)
 
-        self.on_y_scrollbar_changed = signal('y_scrollbar_changed')
+        self.on_y_scrollbar_changed = signal('y_scrollbar_changed', self)
         self.on_y_scrollbar_changed.connect(self)
 
         self.frame = ttk.Frame(master)
