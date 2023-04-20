@@ -163,11 +163,14 @@ class VideoInfo:
         kw: dict[str, Any] = {}
 
         live_status: str = opts['live_status']
-        kw.update(_live_status=live_status,
-                  is_live=(live_status == "is_live"),
-                  url=opts['webpage_url'], title=opts['title'],
-                  duration=Duration.convert(opts.get('duration', 0)),
-                  age_limit=opts['age_limit'])
+        kw.update(
+            _live_status=live_status,
+            is_live=(live_status == "is_live"),
+            url=opts['webpage_url'],
+            title=opts['title'],
+            duration=Duration.convert(opts.get('duration', 0)),
+            age_limit=opts['age_limit']
+        )
 
         # Get a list of formats associated with the video
         gen1 = (Format.create(dct) for dct in opts['formats'])
