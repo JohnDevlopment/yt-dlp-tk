@@ -1,8 +1,8 @@
 """Display a toplevel window with a console."""
 
 from __future__ import annotations
-from .interface import ExText, InState
-from .dialogs import ExDialog
+from ..interface import ExText, InState
+from ..logging import get_logger, add_handler
 from tkinter import ttk, Misc, constants as tkconst, Toplevel
 from typing import TYPE_CHECKING
 
@@ -42,7 +42,6 @@ def test ():
     frame.pack(fill=tk.BOTH, expand=True)
 
     def _btn1_cmd(btn: ttk.Button):
-        from .logging import get_logger, add_handler
         btn.after_idle(btn.destroy)
 
         logger = get_logger('tests.gui.console', stream=False)

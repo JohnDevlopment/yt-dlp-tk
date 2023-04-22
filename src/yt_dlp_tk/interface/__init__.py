@@ -2,8 +2,8 @@ from __future__ import annotations
 from tkinter import ttk, constants as tkconst
 import tkinter as tk
 from typing import TYPE_CHECKING, Any, cast, overload, Protocol, Callable
-from .logging import get_logger
-from .signals import signal, InvalidSignalError
+from ..logging import get_logger
+from ..signals import signal, InvalidSignalError
 
 _Column = tuple[str, str, int]
 
