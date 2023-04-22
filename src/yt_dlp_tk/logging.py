@@ -1,12 +1,12 @@
 """Logging module."""
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol, overload
 from .utils import get_env
 from enum import IntEnum
-import logging, warnings
+import logging
 
 if TYPE_CHECKING:
-    from typing import Literal, Any, Callable
+    from typing import Literal, Any
 
 class Level(IntEnum):
     """Logging level."""
@@ -45,6 +45,13 @@ class Level(IntEnum):
 #         def get_record(self) -> logging.LogRecord:
 #             return self._records.pop()
 
+class _TextWriteIO(Protocol):
+    """Supports standard text IO operations."""
+
+    def write(self, text: str, /): ...
+
+    def flush(self): ...
+
 def _get_default_level() -> Level:
     level: Any = get_env('YTDLPTK_LEVEL')
     if level is not None:
@@ -74,7 +81,19 @@ def _init_root_logger(): # pyright: ignore
     add_handler(_rootLogger, 'null')
     #warnings.filterwarnings('once', category=DebugWarning)
 
-def add_handler(logger: Logger, kind: Literal['stream', 'file', 'stack', 'null'], **kw):
+@overload
+def add_handler(logger: Logger, kind: Literal['stream'], *, stream: _TextWriteIO | None=None):
+    ...
+
+@overload
+def add_handler(logger: Logger, kind: Literal['file'], *, file: str, mode: str='wt'):
+    ...
+
+@overload
+def add_handler(logger: Logger, kind: Literal['null']):
+    ...
+
+def add_handler(logger: Logger, kind: str, **kw: Any):
     """
     Add the specified type of handler to LOGGER.
 
