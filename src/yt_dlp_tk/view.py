@@ -4,15 +4,12 @@ from __future__ import annotations
 from .yt_funcs.core import VideoInfo, FormatType
 from .utils import InvalidSignal, attr_dict
 from .interface import ExEntry, ExTree
+from .interface.utils import TkBusyCommand, InState
 from .protocols import Presenter
 from .logging import get_logger
 from tkinter import ttk, constants as tkconst
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 import tkinter as tk
-
-if TYPE_CHECKING:
-    from typing import Any
 
 @dataclass
 class Column:
@@ -49,7 +46,6 @@ class YtdlptkInterface(tk.Tk):
         widgets.enURL = entry
 
         def _get_video_info(btn: ttk.Button):
-            from .interface import TkBusyCommand, InState
             import time
             with InState(btn, ('disabled',)):
                 with TkBusyCommand(widgets.frMain, widgets.frMain):
@@ -181,7 +177,6 @@ class YtdlptkInterface(tk.Tk):
 
     def download_video(self, presenter: Presenter):
         """Download the video."""
-        from .interface import TkBusyCommand
         with TkBusyCommand(self.widgets.frMain, self.widgets.frMain):
             self.update()
             presenter.download_video()
