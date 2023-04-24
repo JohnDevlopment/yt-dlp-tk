@@ -34,6 +34,7 @@ class ConsoleWindow(Toplevel):
         inst = cls._instance
         inst.deiconify()
         inst.clear()
+        inst.update()
         inst.on_show.emit()
         return inst
 
@@ -49,7 +50,7 @@ class ConsoleWindow(Toplevel):
         self.frame = ttk.Frame(self)
         self.frame.pack(fill=tkconst.BOTH, expand=True)
 
-        self.text = ExText(self.frame, state='disabled')
+        self.text = ExText(self.frame, state='disabled', scrolly=True)
         self.text.pack(fill=tkconst.BOTH)
 
         ttk.Button(self.frame, text="Close", command=self.close).pack()
@@ -57,13 +58,14 @@ class ConsoleWindow(Toplevel):
     def write(self, text: str, /):
         with InState(self.text, 'normal'):
             self.text.insert(tkconst.END, text)
+            self.text.see(tkconst.END)
 
     def clear(self):
         with InState(self.text, 'normal'):
             self.text.delete(1.0, 'end')
 
     def flush(self):
-        pass
+        self.update()
 
     def close(self):
         self.wm_withdraw()
