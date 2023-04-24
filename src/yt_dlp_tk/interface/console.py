@@ -31,9 +31,11 @@ class ConsoleWindow(Toplevel):
             cls._instance = cls()
             return cls._instance
 
-        cls._instance.deiconify()
-        cls._instance.on_show.emit()
-        return cls._instance
+        inst = cls._instance
+        inst.deiconify()
+        inst.clear()
+        inst.on_show.emit()
+        return inst
 
     def __init__(self, master: Misc | None=None,
                  cnf: dict[str, Any]={}, **kw: Any):
