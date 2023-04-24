@@ -11,7 +11,7 @@ class Car:
     on_destroyed: signal = field(init=False)
 
     def __post_init__(self):
-        self.on_destroyed = signal('destroyed', self)
+        self.on_destroyed = signal('destroyed')
 
     def move(self):
         while self.timer > 0:
@@ -29,7 +29,7 @@ class blower_upper:
         if sig == 'destroyed':
             print(f"{obj} was destroyed")
 
-def test_signals(capsys: pytest.CaptureFixture) -> None:
+def test_observer(capsys: pytest.CaptureFixture) -> None:
     mycar = Car("Honda", 2019, 5)
     obv = blower_upper()
     mycar.on_destroyed.connect(obv)
@@ -41,3 +41,17 @@ def test_signals(capsys: pytest.CaptureFixture) -> None:
             print(msg)
 
     mycar.on_destroyed.disconnect(obv)
+
+def test_signal_function(capsys: pytest.CaptureFixture):
+    mycar = Car("Ford Explorer", 2016, 5)
+
+    def on_destroyed(obj: object, *args, **kw):
+        print(f"{obj} was destroyed")
+
+    mycar.on_destroyed.connect(on_destroyed)
+
+    with capsys.disabled():
+        for msg in mycar.move():
+            print(msg)
+
+    mycar.on_destroyed.disconnect(on_destroyed)
