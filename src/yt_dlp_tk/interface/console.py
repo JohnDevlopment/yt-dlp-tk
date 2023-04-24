@@ -6,7 +6,7 @@ from .utils import InState
 from ..logging import get_logger, add_handler
 from ..signals import signal
 from tkinter import ttk, Misc, constants as tkconst, Toplevel
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from typing import Any, Type
@@ -32,6 +32,7 @@ class ConsoleWindow(Toplevel):
             return cls._instance
 
         cls._instance.deiconify()
+        cls._instance.on_show.emit()
         return cls._instance
 
     def __init__(self, master: Misc | None=None,
@@ -55,11 +56,16 @@ class ConsoleWindow(Toplevel):
         with InState(self.text, 'normal'):
             self.text.insert(tkconst.END, text)
 
+    def clear(self):
+        with InState(self.text, 'normal'):
+            self.text.delete(1.0, 'end')
+
     def flush(self):
         pass
 
     def close(self):
         self.wm_withdraw()
+        self.on_close.emit()
 
 def test ():
     from tkinter import ttk
@@ -72,10 +78,9 @@ def test ():
     frame = ttk.Frame(root)
     frame.pack(fill=tk.BOTH, expand=True)
 
-    def _btn1_cmd(btn: ttk.Button):
+    def _btn1_cmd():
         logger = get_logger('tests.gui.console', stream=False)
         console = ConsoleWindow.show()
-        add_handler(logger, 'stream', stream=console)
 
         def log():
             logger.debug("Test line.")
@@ -87,8 +92,31 @@ def test ():
         console.after(1000, log)
 
     button = ttk.Button(frame, text='Show Console')
-    button.config(command=lambda: _btn1_cmd(button))
+    button.config(command=_btn1_cmd)
     button.pack()
+
+    def on_show(obj: object, *args, **kw):
+        button: ttk.Button = kw['button']
+        button.state(('disabled',))
+        print("Disabled button")
+
+    def on_close(obj: object, *args, **kw):
+        console = cast(ConsoleWindow, obj)
+        console.clear()
+        print("Console cleared")
+        button: ttk.Button = kw['button']
+        button.state(('!disabled',))
+
+    # Initialize the console, connect to its signals,
+    # and add it to a logger object
+    console = ConsoleWindow.show()
+    console.on_show.connect(on_show, button=button)
+    console.on_close.connect(on_close, button=button)
+    add_handler(
+        get_logger('tests.gui.console', stream=False),
+        'stream', stream=console)
+    console.close()
+    del console
 
     root.mainloop()
 
