@@ -52,6 +52,8 @@ class _TextWriteIO(Protocol):
 
     def flush(self): ...
 
+    def close(self) -> None: ...
+
 def _get_default_level() -> Level:
     level: Any = get_env('YTDLPTK_LEVEL')
     if level is not None:
