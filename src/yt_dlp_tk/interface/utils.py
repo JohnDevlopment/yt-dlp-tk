@@ -154,8 +154,6 @@ class InState:
 
             self.old_state = tuple(flags)
 
-        print(f"old state: {self.old_state}, new state: {self.state_spec}")
-
     def __enter__(self):
         self.owner.state(self.state_spec)
 
