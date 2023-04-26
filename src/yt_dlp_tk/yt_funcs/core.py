@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 from yt_dlp import YoutubeDL
-from yt_dlp.utils import DownloadError
 from ..logging import get_logger
 from ..utils import ErrorEnum, unique
+from ..protocols import CustomLogger
 from enum import Enum
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, overload
@@ -184,7 +184,7 @@ class VideoInfo:
         return f"{self.title} | {self.url}, duration: {self.duration}, live: {self.is_live}, " \
             + f"age restriction: {self.age_limit or None}, {len(self.formats)} formats"
 
-def download_video(url: str, format_: str, **kw: Any):
+def download_video(url: str, format_: str, logger: CustomLogger):
     """
     Download the video from URL in the given FORMAT_.
 
@@ -201,9 +201,9 @@ def download_video(url: str, format_: str, **kw: Any):
         'format': format_,
         'age_limit': 18,
         'restrictfilenames': True,
-        'simulate': False
+        'simulate': False,
+        'logger': logger
     }
-    opts.update(kw)
 
     with YoutubeDL(opts) as ydl:
         ydl.download([url])

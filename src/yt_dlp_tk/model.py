@@ -1,8 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+from .protocols import CustomLogger
 from .utils import Result
-from .yt_funcs.core import (extract_video_info, download_video,
-                            DownloadError, VideoInfo, YTErrors)
+from .yt_funcs.core import extract_video_info, download_video, VideoInfo, YTErrors
+from yt_dlp.utils import DownloadError
 from .data import zipped_info
 from .logging import Logger
 import gzip
@@ -30,5 +31,5 @@ class Model:
 
         return Result(self.video_info, YTErrors.OK)
 
-    def download_video(self, url: str, format_: str, logger: Logger):
+    def download_video(self, url: str, format_: str, logger: CustomLogger):
         download_video(url, format_, logger=logger)

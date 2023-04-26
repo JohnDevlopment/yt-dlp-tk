@@ -13,12 +13,6 @@ class Presenter:
         self.view = view
         self.view.create_interface(self)
 
-        # Logger used for Youtube downloads
-        console = ConsoleWindow.show()
-        self.logger = get_logger('backend.youtube', stream=False)
-        add_handler(self.logger, 'stream', stream=console)
-        console.close()
-
     def run(self) -> None:
         self.view.mainloop()
 
@@ -29,9 +23,8 @@ class Presenter:
             self.view.update_video_info(info)
 
     def download_video(self) -> None:
-        ConsoleWindow.show()
         self.model.download_video(
             self.view.url,
             self.view.format,
-            self.logger
+            ConsoleWindow.show()
         )
