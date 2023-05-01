@@ -1,14 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from .logging import get_logger, add_handler
-from .protocols import Model, View
 from .interface.console import ConsoleWindow
 
 if TYPE_CHECKING:
     from typing import Any
+    from .protocols import Model, View
 
 class Presenter:
-    def __init__(self, model: Model, view: View) -> None:
+    def __init__(self, model: Model, view: View):
         logger = get_logger('backend')
 
         logger.info("Initializing backend...")
@@ -23,7 +23,7 @@ class Presenter:
         self.view.mainloop()
 
     def get_video_info(self) -> None:
-        logger = get_logger('backend.youtube')
+        logger = get_logger('backend.youtube', stream=False)
 
         logger.info("Retrieving info for %s.", self.view.url)
 
