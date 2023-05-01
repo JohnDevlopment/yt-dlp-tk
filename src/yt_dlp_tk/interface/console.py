@@ -29,13 +29,13 @@ class ConsoleWindow(Toplevel):
         """
         if cls._instance is None:
             cls._instance = cls()
-            return cls._instance
 
         inst = cls._instance
         inst.deiconify()
         inst.clear()
         inst.update()
         inst.on_show.emit()
+
         return inst
 
     def __init__(self, master: Misc | None=None,
@@ -64,12 +64,35 @@ class ConsoleWindow(Toplevel):
         with InState(self.text, 'normal'):
             self.text.delete(1.0, 'end')
 
-    def flush(self):
-        self.update()
-
     def close(self):
         self.wm_withdraw()
         self.on_close.emit()
+
+    def _write_log_msg(self, prefix: str, msg: str, *args: Any):
+        try:
+            msg = msg % args
+        except:
+            pass
+
+        self.write(f"{prefix}{msg}\n")
+        self.update()
+
+    def debug(self, msg: str, *args: Any):
+        self._write_log_msg("DEBUG: ", msg, *args)
+
+    def info(self, msg: str, *args: Any):
+        self._write_log_msg("INFO: ", msg, *args)
+
+    def warn(self, msg: str, *args: Any):
+        self._write_log_msg("WARN: ", msg, *args)
+
+    warning = warn
+
+    def error(self, msg: str, *args: Any):
+        self._write_log_msg("ERROR: ", msg, *args)
+
+    def critical(self, msg: str, *args: Any):
+        self._write_log_msg("CRITICAL: ", msg, *args)
 
 def test ():
     from tkinter import ttk
@@ -83,15 +106,14 @@ def test ():
     frame.pack(fill=tk.BOTH, expand=True)
 
     def _btn1_cmd():
-        logger = get_logger('tests.gui.console', stream=False)
         console = ConsoleWindow.show()
 
         def log():
-            logger.debug("Test line.")
-            logger.info("Test line.")
-            logger.warning("Test line.")
-            logger.error("Test line.")
-            logger.critical("Test line.")
+            console.debug("Test line.\n")
+            console.info("Test line.\n")
+            console.warn("Test line.\n")
+            console.error("Test line.\n")
+            console.critical("Test line.\n")
 
         console.after(1000, log)
 
