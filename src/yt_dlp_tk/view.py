@@ -9,6 +9,7 @@ from .protocols import Presenter
 from .logging import get_logger
 from tkinter import ttk, constants as tkconst
 from dataclasses import dataclass
+from typing import cast
 import tkinter as tk
 
 @dataclass
@@ -24,6 +25,8 @@ class Column:
         return self.column, self.heading, self.width
 
 class YtdlptkInterface(tk.Tk):
+    DEFAULT_LABEL = "." * 75
+
     def create_interface(self, presenter: Presenter) -> None:
         widgets = attr_dict()
         self.widgets = widgets
@@ -73,7 +76,7 @@ class YtdlptkInterface(tk.Tk):
             ttk.Label(subframe, text=text, anchor=tkconst.E, padding="0 0 8")\
                .grid(row=i, column=0, sticky='w')
 
-            label = ttk.Label(subframe, anchor=tkconst.CENTER, text=("." * 75),
+            label = ttk.Label(subframe, anchor=tkconst.CENTER, text=self.DEFAULT_LABEL,
                               width=100, relief=tkconst.SUNKEN)
             label.grid(row=i, column=1, sticky='w')
             widgets[widget] = label
@@ -218,3 +221,14 @@ class YtdlptkInterface(tk.Tk):
                     logger.debug("Added format: %s", fmt.fmtname)
                     values = (fmt.fmtid, fmt.fmtname, '', '', fmt.framerate, '', fmt.bitrate)
                     tree.insert('Ivideo', 'end', values=values)
+
+    def clear_video_info(self):
+        widgets = self.widgets
+
+        for temp in ['lbTitle', 'lbLength', 'lbAgegate']:
+            label = cast(ttk.Label, widgets[temp])
+            label.config(text=self.DEFAULT_LABEL)
+
+        cast(ExTree, widgets.trFormats).clear()
+
+        self.update()

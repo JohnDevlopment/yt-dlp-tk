@@ -25,11 +25,16 @@ class Presenter:
     def get_video_info(self) -> None:
         logger = get_logger('backend.youtube', stream=False)
 
-        logger.info("Retrieving info for %s.", self.view.url)
+        logger.debug("Clear data.")
+        self.model.clear_video_info()
 
+        logger.debug("Clear interface.")
+        self.view.clear_video_info()
+
+        logger.info("Retrieving info for %s.", self.view.url)
         result = self.model.get_video_info(self.view.url)
         if result.ok is not None:
-            logger.info("Retrieve info for video.")
+            logger.info("Retrieved info for video.")
             info = result.ok
             self.view.update_video_info(info)
 

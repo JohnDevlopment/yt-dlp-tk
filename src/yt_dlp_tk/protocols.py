@@ -40,7 +40,9 @@ class Model(Protocol):
         """
         ...
 
-    def download_video(self, url: str, format_: str, logger: CustomLogger) -> None: ...
+    def clear_video_info(self) -> None:
+        """Clears video info."""
+        ...
 
 class View(Protocol):
     def mainloop(self) -> None:
@@ -57,6 +59,10 @@ class View(Protocol):
 
     def update_video_info(self, info: VideoInfo) -> None:
         """Update the interface with contents of INFO."""
+        ...
+
+    def clear_video_info(self) -> None:
+        """Clears video info. Called by Presenter."""
         ...
 
     @property
