@@ -1,19 +1,22 @@
+"""Model. Check the protocol for documentation."""
+
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from .protocols import CustomLogger
 from .utils import Result
 from .yt_funcs.core import extract_video_info, download_video, VideoInfo, YTErrors
 from yt_dlp.utils import DownloadError
 from .data import zipped_info
-from .logging import Logger
 import gzip
 
 if TYPE_CHECKING:
     from typing import Any
+    from .protocols import CustomLogger
 
 class Model:
+    def __init__(self):
+        self.video_info: VideoInfo | None = None
+
     def get_video_info(self, url: str) -> Result[None, YTErrors] | Result[VideoInfo, YTErrors]:
-        """Get info for the specified URL."""
         if url.lower() == 'zipped':
             info_bytes = gzip.decompress(zipped_info)
             code = compile(info_bytes, __file__, 'eval')
