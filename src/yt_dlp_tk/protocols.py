@@ -9,29 +9,65 @@ if TYPE_CHECKING:
 class Presenter(Protocol):
     def __init__(self, model: Model, view: View) -> None: ...
 
-    def run(self) -> None: ...
+    def run(self) -> None:
+        """Run the program. Enter the main loop."""
+        ...
 
-    def get_video_info(self) -> None: ...
+    def get_video_info(self) -> None:
+        """Get video info. Calls Model."""
+        ...
 
-    def download_video(self) -> None: ...
+    def download_video(self) -> None:
+        """Download the video. Calls Model."""
+        ...
 
 class Model(Protocol):
-    def get_video_info(self, url: str) -> Result[None, YTErrors] | Result[VideoInfo, YTErrors]: ...
+    def get_video_info(self, url: str) -> Result[None, YTErrors] | Result[VideoInfo, YTErrors]:
+        """
+        Return info for the video located at URL.
+
+        If successful, returns a Result with the Ok value being
+        a VideoInfo; otherwise returns a Result with the Err value
+        set to a enum of YTErrors.
+        """
+        ...
+
+    def download_video(self, url: str, format_: str, logger: CustomLogger) -> None:
+        """
+        Download the video from URL in the given FORMAT.
+
+        LOGGER is used to log messages directly from yt-dlp.
+        """
+        ...
 
     def download_video(self, url: str, format_: str, logger: CustomLogger) -> None: ...
 
 class View(Protocol):
-    def mainloop(self) -> None: ...
+    def mainloop(self) -> None:
+        """Main loop for the interface."""
+        ...
 
-    def create_interface(self, presenter: Presenter) -> None: ...
+    def create_interface(self, presenter: Presenter) -> None:
+        """
+        Create the interface.
 
-    def update_video_info(self, info: VideoInfo) -> None: ...
+        Shall only be called once and before calling View.mainloop().
+        """
+        ...
+
+    def update_video_info(self, info: VideoInfo) -> None:
+        """Update the interface with contents of INFO."""
+        ...
 
     @property
-    def url(self) -> str: ...
+    def url(self) -> str:
+        """The contents of the URL entry."""
+        ...
 
     @property
-    def format(self) -> str: ...
+    def format(self) -> str:
+        """Format specifier."""
+        ...
 
 class CustomLogger(Protocol):
     def debug(self, msg: str, *args: Any):
