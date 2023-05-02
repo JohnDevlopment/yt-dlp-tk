@@ -10,7 +10,7 @@ from .logging import get_logger
 from tkinter import ttk, constants as tkconst
 from dataclasses import dataclass
 from typing import cast
-import tkinter as tk
+import tkinter as tk, time
 
 @dataclass
 class Column:
@@ -48,16 +48,8 @@ class YtdlptkInterface(tk.Tk):
         entry.pack()
         widgets.enURL = entry
 
-        def _get_video_info(btn: ttk.Button):
-            import time
-            with InState(btn, ('disabled',)):
-                with TkBusyCommand(widgets.frMain, widgets.frMain):
-                    btn.update()
-                    time.sleep(1)
-                    presenter.get_video_info()
-
         button = ttk.Button(frame, text="Get Video Info",
-                            command=lambda: _get_video_info(button))
+                            command=lambda: self.get_video_info(button, presenter))
         button.pack()
         widgets.btSearch = button
 
@@ -164,13 +156,11 @@ class YtdlptkInterface(tk.Tk):
 
     @property
     def url(self) -> str:
-        """URL."""
         entry: ExEntry = self.widgets.enURL
         return entry.get()
 
     @property
     def format(self) -> str:
-        """The format code to use in ."""
         w = self.widgets
         vf: str = w.enVideo.get()
         af: str = w.enAudio.get()
@@ -178,10 +168,18 @@ class YtdlptkInterface(tk.Tk):
 
     ###
 
+    def get_video_info(self, button: ttk.Button, presenter: Presenter):
+        frame = self.widgets.frMain
+        with InState(button, ('disabled',)):
+            with TkBusyCommand(frame, frame):
+                self.update()
+                time.sleep(0.5)
+                presenter.get_video_info()
+
     def download_video(self, presenter: Presenter):
-        """Download the video."""
         with TkBusyCommand(self.widgets.frMain, self.widgets.frMain):
             self.update()
+            time.sleep(0.5)
             presenter.download_video()
 
     def update_video_info(self, info: VideoInfo):
