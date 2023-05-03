@@ -1,9 +1,9 @@
 # from ..yt_funcs import core as yt_funcs_core
-from ..yt_funcs.core import Format, FormatType, Duration, YoutubeDL, extract_video_info
+from ..yt_funcs.core import Format, FormatType, Duration, YoutubeDL, extract_video_info, Filesize
 from ..utils import get_env
 from pathlib import Path
 from typing import Any, cast
-import pytest, pickle
+import pytest, pickle, math
 
 DurationExpectedType = tuple[list[int] | None, str]
 
@@ -77,6 +77,20 @@ class TestClasses:
         assert d.seconds == exp_dur[2]
 
         assert str(d) == expected[1]
+
+    @pytest.mark.parametrize("size,approximate,expected", [
+        (59904.0, False, (58.5, 'kb', '58.5 kb')),
+        (61865984.0, False, (59.0, 'mb', '59.0 mb')),
+        (2254857830.4, True, (2.1, 'gb', '~2.1 gb'))
+    ])
+    def test_Filesize(self, size: float, approximate: bool,
+                      expected: tuple[float, str, str]):
+        fsz = Filesize.create(size, approximate)
+        expsize, expunit, expstr = expected
+        assert math.isclose(fsz.raw_byte_size, size)
+        assert math.isclose(fsz.size, expsize)
+        assert fsz.unit == expunit
+        assert str(fsz) == expstr
 
     # def test_VideoInfo(self):
     #     # TODO: finish this test
