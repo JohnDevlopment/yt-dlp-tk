@@ -89,6 +89,7 @@ class TestClasses:
                 'vcodec': 'h264',
                 'acodec': 'none',
                 'format': '598 - 256x144 (144p)',
+                'format_id': '598',
                 'vbr': 34.83,
                 'tbr': 34.83,
                 'fps': 25
@@ -101,21 +102,24 @@ class TestClasses:
                 'acodec': 'opus',
                 'asr': 48000,
                 'abr': 62.699,
-                'format': '250 - audio only (low)'
+                'format': '250 - audio only (low)',
+                'format_id': '250'
             },
             ('opus', 62.699)
         ),
         (
             {
                 'format': 'sb2 - 48x27 (storyboard)',
+                'format_id': 'sb2',
                 'vcodec': 'none',
-                'acodec': 'none',
+                'acodec': 'none'
             },
             ('unknown', 0.0)
         ),
         (
             {
                 'format': '300 - 640x480',
+                'format_id': '300',
                 'vcodec': 'h264',
                 'acodec': 'opus',
                 'asr': 48000,
