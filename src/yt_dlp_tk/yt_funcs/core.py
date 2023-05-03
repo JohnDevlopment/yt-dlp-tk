@@ -8,9 +8,10 @@ from ..protocols import CustomLogger
 from enum import Enum
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, overload
+import math
 
 if TYPE_CHECKING:
-    from typing import Any, Type
+    from typing import Any, Type, Literal
     from typing_extensions import Self
 
 @unique
@@ -22,6 +23,8 @@ class YTErrors(ErrorEnum):
 
 @dataclass
 class Duration:
+    """A representation of a time length."""
+
     hours: int
     minutes: int
     seconds: int
@@ -50,6 +53,34 @@ class Duration:
             return f"{m}:{s:02}"
         return str(s)
 
+@dataclass
+class Filesize:
+    """A representation of a file size."""
+
+    size: float
+    unit: Literal['b', 'kb', 'mb', 'gb']
+    raw_byte_size: float
+    approximate: bool
+
+    def __str__(self) -> str:
+        return "{}{}{}".format(
+            "~" if self.approximate else "",
+            str(self.size),
+            " " + self.unit
+        )
+
+    @classmethod
+    def create(cls, value: float, approximate: bool=False) -> Filesize:
+        """Return a Filesize by converting VALUE bytes."""
+        raw_size = value
+        suffixes = ('b', 'kb', 'mb', 'gb')
+        i = 0
+        while value > 1024.0:
+            value /= 1024.0
+            i += 1
+
+        return cls(round(value, 2), suffixes[i], raw_size, approximate)
+
 @unique
 class FormatType(Enum):
     VIDEO = 'video'
@@ -69,6 +100,7 @@ class Format:
     resolution: str
     width: int
     height: int
+    filesize: Filesize
 
     @classmethod
     def create(cls: Type[Format], _format: dict[str, Any], /) -> Format:
@@ -78,6 +110,9 @@ class Format:
         _FORMAT needs:
             * tbr
             * format_id
+            * One of
+                * filesize
+                * filesize_approx
           If Audio Format:
             * acodec
             * asr
@@ -142,6 +177,13 @@ class Format:
             'resolution': _format.get('resolution', ''),
             'fmtid': _format['format_id']
         }
+
+        size: float = _format.get('filesize') or 0.0
+        if size > 0.0:
+            kw['filesize'] = Filesize.create(size)
+        else:
+            size = _format.get('filesize_approx', 0.0)
+            kw['filesize'] = Filesize.create(size, True)
 
         return cls(**kw)
 
