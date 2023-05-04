@@ -1,7 +1,7 @@
 """Youtube functions via `yt-dlp`."""
 
 from __future__ import annotations
-from yt_dlp import YoutubeDL
+from yt_dlp import YoutubeDL, postprocessor
 from ..logging import get_logger
 from ..utils import ErrorEnum, unique
 from ..protocols import CustomLogger
@@ -245,7 +245,8 @@ class VideoInfo:
         return f"{self.title} | {self.url}, duration: {self.duration}, live: {self.is_live}, " \
             + f"age restriction: {self.age_limit or None}, {len(self.formats)} formats"
 
-def download_video(url: str, format_: str, logger: CustomLogger):
+def download_video(url: str, format_: str, logger: CustomLogger, *,
+                   chapters: Literal['none', 'embed']='none'):
     """
     Download the video from URL in the given FORMAT_.
 
@@ -256,6 +257,11 @@ def download_video(url: str, format_: str, logger: CustomLogger):
     **KW contains keyword options supported
     by yt_dlp.YoutubeDL.
     """
+
+    logger = get_logger('backend.yt', stream=False)
+
+    logger.info("Downloading video from %s.", url)
+
     opts: dict[str, Any] = {
         'quiet': False,
         'dump_single_json': False,
@@ -266,7 +272,29 @@ def download_video(url: str, format_: str, logger: CustomLogger):
         'logger': logger
     }
 
+    logger.debug("Initial options: %r", opts)
+
     with YoutubeDL(opts) as ydl:
+        # Post-processing: chapters
+        match chapters:
+            case 'embed':
+                ydl.add_post_processor(
+                    postprocessor.FFmpegMetadataPP(ydl))
+                logger.debug("Embed chapters.")
+            case 'split':
+                ydl.add_post_processor(
+                    postprocessor.FFmpegSplitChaptersPP(ydl))
+                logger.debug("Split video into chapters.")
+            case 'none':
+                pass
+            case arg:
+                valid_chapters = ['none', 'embed', 'split']
+                if chapters not in valid_chapters:
+                    valid_chapters = ', '.join(valid_chapters)
+                    raise ValueError(f"invalid 'chapters' {arg!r}, can be one of {valid_chapters}")
+
+        logger.debug("Downloading video...")
+
         ydl.download([url])
 
 @overload
