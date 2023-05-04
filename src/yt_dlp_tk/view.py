@@ -212,12 +212,14 @@ class YtdlptkInterface(tk.Tk):
             match fmt.fmttype:
                 case FormatType.AUDIO:
                     logger.debug("Added format: %s", fmt.fmtname)
-                    values = (fmt.fmtid, fmt.fmtname, '', '', fmt.samplerate, str(fmt.filesize), fmt.bitrate)
+                    values = (fmt.fmtid, fmt.fmtname, '', '', fmt.samplerate,
+                              str(fmt.filesize), fmt.bitrate)
                     tree.insert('Iaudio', 'end', values=values)
 
                 case FormatType.VIDEO:
                     logger.debug("Added format: %s", fmt.fmtname)
-                    values = (fmt.fmtid, fmt.fmtname, '', '', fmt.framerate, str(fmt.filesize), fmt.bitrate)
+                    values = (fmt.fmtid, fmt.fmtname, '', fmt.resolution, fmt.framerate,
+                              str(fmt.filesize), fmt.bitrate)
                     tree.insert('Ivideo', 'end', values=values)
 
     def clear_video_info(self):
