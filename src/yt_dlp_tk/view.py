@@ -57,10 +57,11 @@ class YtdlptkInterface(tk.Tk):
         subframe = ttk.Frame(frame)
         subframe.pack()
 
-        LABELS = [
+        LABELS: list[tuple[str, str]] = [
             ("Title", 'lbTitle'),
             ("Length", "lbLength"),
-            ("Age Restricted", "lbAgegate")
+            ("Age Restricted", "lbAgegate"),
+            ("Has Chapters", "lbChaptered")
         ]
 
         for i, elt in enumerate(LABELS):
@@ -200,6 +201,9 @@ class YtdlptkInterface(tk.Tk):
         label = widgets.lbAgegate
         label.config(text=str(info.age_limit >= 18))
 
+        label = widgets.lbChaptered
+        label.config(text=str(info.has_chapters))
+
         # Add formats to the tree
         tree: ExTree = widgets.trFormats
         tree.clear()
@@ -225,7 +229,7 @@ class YtdlptkInterface(tk.Tk):
     def clear_video_info(self):
         widgets = self.widgets
 
-        for temp in ['lbTitle', 'lbLength', 'lbAgegate']:
+        for temp in ['lbTitle', 'lbLength', 'lbAgegate', 'lbChaptered']:
             label = cast(ttk.Label, widgets[temp])
             label.config(text=self.DEFAULT_LABEL)
 
