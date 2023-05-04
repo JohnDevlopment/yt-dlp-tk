@@ -6,7 +6,7 @@ from ..logging import get_logger
 from ..utils import ErrorEnum, unique
 from ..protocols import CustomLogger
 from enum import Enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, overload
 import math
 
@@ -20,6 +20,14 @@ class YTErrors(ErrorEnum):
 
     OK = 0
     DOWNLOADERROR = 1
+
+@dataclass
+class Chapter:
+    """A representation of a chapter."""
+
+    start_time: int
+    end_time: int
+    title: str
 
 @dataclass
 class Duration:
@@ -178,6 +186,7 @@ class Format:
             'fmtid': _format['format_id']
         }
 
+        # Get the file size
         size: float = _format.get('filesize') or 0.0
         if size > 0.0:
             kw['filesize'] = Filesize.create(size)
@@ -187,7 +196,7 @@ class Format:
 
         return cls(**kw)
 
-@dataclass
+@dataclass(slots=True)
 class VideoInfo:
     title: str
     url: str
@@ -195,8 +204,9 @@ class VideoInfo:
     age_limit: int
     duration: Duration
     formats: list[Format]
-
     _live_status: str
+    has_chapters: bool = False
+    chapters: list[Chapter] = field(default_factory=list)
 
     @classmethod
     def create(cls, opts: dict[str, Any]) -> Self:
@@ -219,6 +229,15 @@ class VideoInfo:
         it = itertools.filterfalse(
             lambda fmt: fmt.fmttype == FormatType.OTHER, gen1)
         kw['formats'] = list(it)
+
+        # Check if the video has chapters
+        chapters = opts.get('chapters', [])
+        if chapters:
+            kw['has_chapters'] = True
+            kw['chapters'] = [
+                Chapter(**ch)
+                for ch in chapters
+            ]
 
         return cls(**kw)
 
