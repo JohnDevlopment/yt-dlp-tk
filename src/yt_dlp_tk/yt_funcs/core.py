@@ -5,6 +5,7 @@ from yt_dlp import YoutubeDL, postprocessor
 from ..logging import get_logger
 from ..utils import ErrorEnum, unique
 from ..protocols import CustomLogger
+from .postprocessing import RenameFixFilePP
 from enum import Enum
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, overload
@@ -292,6 +293,9 @@ def download_video(url: str, format_: str, yt_logger: CustomLogger, *,
                 if chapters not in valid_chapters:
                     valid_chapters = ', '.join(valid_chapters)
                     raise ValueError(f"invalid 'chapters' {arg!r}, can be one of {valid_chapters}")
+
+        # Post-processing: rename file
+        ydl.add_post_processor(RenameFixFilePP())
 
         logger.debug("Downloading video...")
 
