@@ -32,7 +32,7 @@ class Model(Protocol):
         """
         ...
 
-    def download_video(self, url: str, format_: str, logger: CustomLogger) -> None:
+    def download_video(self, url: str, format_: str, logger: CustomLogger, **kw: Any) -> None:
         """
         Download the video from URL in the given FORMAT.
 
