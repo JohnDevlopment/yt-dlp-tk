@@ -245,7 +245,7 @@ class VideoInfo:
         return f"{self.title} | {self.url}, duration: {self.duration}, live: {self.is_live}, " \
             + f"age restriction: {self.age_limit or None}, {len(self.formats)} formats"
 
-def download_video(url: str, format_: str, logger: CustomLogger, *,
+def download_video(url: str, format_: str, yt_logger: CustomLogger, *,
                    chapters: Literal['none', 'embed']='none'):
     """
     Download the video from URL in the given FORMAT_.
@@ -269,7 +269,7 @@ def download_video(url: str, format_: str, logger: CustomLogger, *,
         'age_limit': 18,
         'restrictfilenames': True,
         'simulate': False,
-        'logger': logger
+        'logger': yt_logger
     }
 
     logger.debug("Initial options: %r", opts)
