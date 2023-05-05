@@ -4,7 +4,7 @@ from __future__ import annotations
 from .yt_funcs.core import VideoInfo, FormatType
 from .utils import InvalidSignal, attr_dict
 from .interface import ExEntry, ExTree
-from .interface.utils import TkBusyCommand, InState
+from .interface.utils import TkBusyCommand, InState, StringVar
 from .protocols import Presenter
 from .logging import get_logger
 from tkinter import ttk, constants as tkconst
@@ -90,6 +90,22 @@ class YtdlptkInterface(tk.Tk):
                    command=lambda: self.download_video(presenter))\
            .pack()
 
+         # Download options
+        subframe = ttk.Frame(frame)
+        subframe.pack()
+
+          # Radio buttons: chapters
+        var = StringVar(master=frame, name='CHAPTERS', value='none')
+
+        ttk.Radiobutton(subframe, variable=var, value='none', text="No chapters")\
+           .grid(row=0, column=0)
+
+        ttk.Radiobutton(subframe, variable=var, value='embed', text="Embed chapters in video")\
+           .grid(row=0, column=1)
+
+        ttk.Radiobutton(subframe, variable=var, value='split', text="Split video into chapters")\
+           .grid(row=0, column=2)
+
          # Treeview
         COLUMNS = [
             Column('Cid', "ID"),
@@ -166,6 +182,11 @@ class YtdlptkInterface(tk.Tk):
         vf: str = w.enVideo.get()
         af: str = w.enAudio.get()
         return "+".join((vf, af))
+
+    def get_download_options(self):
+        return {
+            "chapters": StringVar(name='CHAPTERS').get()
+        }
 
     ###
 

@@ -75,6 +75,16 @@ class View(Protocol):
         """Format specifier."""
         ...
 
+    def get_download_options(self) -> dict[str, Any]:
+        """
+        Return options for downloading the video.
+
+        Keys:
+            * chapters - {none, split, embed} specifies how
+                         to handle video chapters
+        """
+        ...
+
 class CustomLogger(Protocol):
     def debug(self, msg: str, *args: Any):
         """Print message with severity debug."""
