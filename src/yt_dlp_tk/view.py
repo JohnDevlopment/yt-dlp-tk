@@ -97,14 +97,22 @@ class YtdlptkInterface(tk.Tk):
           # Radio buttons: chapters
         var = StringVar(master=frame, name='CHAPTERS', value='none')
 
-        ttk.Radiobutton(subframe, variable=var, value='none', text="No chapters")\
-           .grid(row=0, column=0)
+        widgets.chapters = []
 
-        ttk.Radiobutton(subframe, variable=var, value='embed', text="Embed chapters in video")\
-           .grid(row=0, column=1)
+        rb = ttk.Radiobutton(subframe, variable=var, value='none',
+                             text="No chapters", state='disabled')
+        rb.grid(row=0, column=0)
+        widgets.chapters.append(rb)
 
-        ttk.Radiobutton(subframe, variable=var, value='split', text="Split video into chapters")\
-           .grid(row=0, column=2)
+        rb = ttk.Radiobutton(subframe, variable=var, value='embed',
+                             text="Embed chapters in video", state='disabled')
+        rb.grid(row=0, column=1)
+        widgets.chapters.append(rb)
+
+        rb = ttk.Radiobutton(subframe, variable=var, value='split',
+                             text="Split video into chapters", state='disabled')
+        rb.grid(row=0, column=2)
+        widgets.chapters.append(rb)
 
          # Treeview
         COLUMNS = [
@@ -232,6 +240,11 @@ class YtdlptkInterface(tk.Tk):
         tree.insert('', 'end', text="Audio", open=True, iid='Iaudio')
         tree.insert('', 'end', text="Video", open=True, iid='Ivideo')
 
+        # Enable radio buttons if the video has chapters
+        if info.has_chapters:
+            for rb in self.widgets.chapters:
+                cast(ttk.Radiobutton, rb).state(('!disabled',))
+
         logger.debug("%d formats", len(info.formats))
         for fmt in info.formats:
             match fmt.fmttype:
@@ -255,5 +268,10 @@ class YtdlptkInterface(tk.Tk):
             label.config(text=self.DEFAULT_LABEL)
 
         cast(ExTree, widgets.trFormats).clear()
+
+        # Reset radiobuttons
+        StringVar(name='CHAPTERS').set('none')
+        for rb in self.widgets.chapters:
+            cast(ttk.Radiobutton, rb).state(('disabled',))
 
         self.update()
