@@ -2,8 +2,8 @@ from __future__ import annotations
 from tkinter import ttk, constants as tkconst
 from .utils import _WidgetMixin
 from ..signals import signal, InvalidSignalError
-from typing import TYPE_CHECKING, Callable, overload
-import tkinter as tk
+from typing import TYPE_CHECKING
+import tkinter as tk, sys
 
 if TYPE_CHECKING:
     from typing import Any
@@ -105,3 +105,64 @@ class ExEntry(ttk.Entry, _WidgetMixin):
                 raise InvalidSignalError(sig)
 
 ExEntry.override_init_docstring(ttk.Entry)
+
+def _test_nontemp_variables():
+    from .utils import StringVar
+
+    for varname in ['NAME', 'RADIO']:
+        var = StringVar(name=varname)
+        print(f"{varname}:", var.get())
+
+def _test_temp_variables():
+    from .utils import StringVar
+
+    for varname in ['TEMPNAME', 'TEMPRADIO']:
+        var = StringVar(name=varname, temp=True)
+        print(f"{varname}:", var.get())
+
+def make_interface():
+    from .utils import StringVar
+
+    root = tk.Tk()
+    root.title("Test ExEntry")
+
+    frame = ttk.Frame()
+    frame.pack(fill=tkconst.BOTH, expand=True)
+
+    # Non-temp variables
+    subframe = ttk.Labelframe(frame, text="Non-Temp Vars")
+    subframe.pack()
+
+    ExEntry(subframe, text="Name", textvariable=StringVar(name='NAME'))\
+        .pack()
+
+    var = StringVar(name='RADIO', value='one')
+    ttk.Radiobutton(subframe, variable=var, value='one', text="One").pack()
+    ttk.Radiobutton(subframe, variable=var, value='two', text="Two").pack()
+    ttk.Radiobutton(subframe, variable=var, value='three', text="Three").pack()
+
+    ttk.Button(subframe, text='Test', command=_test_nontemp_variables).pack()
+
+    # Temp variables
+    subframe = ttk.Labelframe(frame, text="Temp Vars")
+    subframe.pack()
+
+    ExEntry(subframe, text="Temp Name", textvariable=StringVar(name='TEMPNAME', temp=True))\
+        .pack()
+
+    var = StringVar(name='TEMPRADIO', value='one', temp=True)
+    ttk.Radiobutton(subframe, variable=var, value='one', text="One").pack()
+    ttk.Radiobutton(subframe, variable=var, value='two', text="Two").pack()
+    ttk.Radiobutton(subframe, variable=var, value='three', text="Three").pack()
+
+    ttk.Button(subframe, text='Test', command=_test_temp_variables).pack()
+
+    return root
+
+def test () -> int:
+    root = make_interface()
+    root.mainloop()
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(test())
