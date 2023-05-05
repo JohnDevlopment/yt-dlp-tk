@@ -38,4 +38,4 @@ class Model:
         self.video_info = None
 
     def download_video(self, url: str, format_: str, logger: CustomLogger, **kw: Any):
-        download_video(url, format_, logger=logger, **kw)
+        download_video(url, format_, logger, **kw)
