@@ -2,6 +2,7 @@ from __future__ import annotations
 from tkinter import ttk
 import tkinter as tk
 from typing import Any, Literal, cast, Protocol, Type
+# from abc import ABC, abstractmethod
 
 _Column = tuple[str, str, int] # pyright: ignore
 _Widget = tk.Widget | None
@@ -24,6 +25,48 @@ class _ResourceManager:
 
     def __contains__(self, key: str) -> bool:
         return self.resources.__contains__(key)
+
+class Variable(tk.Variable):
+    """Class to define value holders for widgets."""
+
+    def __init__(self, master: _Widget=None, value=None,
+                 name: str | None=None, temp: bool=False):
+        super().__init__(master, value, name)
+        self.temp = temp
+
+    def __del__(self):
+        """Overridden to do nothing unless self.temp is True."""
+        if self.temp:
+            super().__del__() # pyright: ignore
+
+    @property
+    def tk(self):
+        master: tk.Widget = self._root # pyright: ignore
+        return master.tk
+
+class StringVar(Variable):
+    """Value holder for string variables."""
+
+    def __init__(self, master: _Widget=None, value: Any=None,
+                 name: str | None=None, temp: bool=False):
+        """
+        Construct a string variable.
+
+        MASTER is the master widget.
+        VALUE is an optional value that defaults to "".
+        NAME is an optional Tcl name which defaults to PY_VARnum.
+
+        If NAME matches an existing variable and VALUE is omitted,
+        then the existing value is retained.
+        """
+        super().__init__(master, value, name, temp)
+
+    def get(self) -> str:
+        """Return value of variable as string."""
+        value: Any = self.tk.globalgetvar(self._name) # pyright: ignore
+        if isinstance(value, str):
+            return value
+        return str(value)
 
 class _WidgetMixin:
     @classmethod
@@ -159,3 +202,14 @@ class InState:
 
     def __exit__(self, exc_type, exc_value, traceback): # pyright: ignore
         self.owner.state(self.old_state)
+
+# def _get_default_root(what=None):
+#     if not _support_default_root:
+#         raise RuntimeError("No master specified and tkinter is "
+#                            "configured to not support default root")
+#     if _default_root is None:
+#         if what:
+#             raise RuntimeError(f"Too early to {what}: no default root window")
+#         root = Tk()
+#         assert _default_root is root
+#     return _default_root
