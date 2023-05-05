@@ -39,8 +39,13 @@ class Presenter:
             self.view.update_video_info(info)
 
     def download_video(self) -> None:
+        opts = self.view.get_download_options()
+        kw = {
+            'chapters': opts['chapters']
+        }
         self.model.download_video(
             self.view.url,
             self.view.format,
-            ConsoleWindow.show()
+            ConsoleWindow.show(),
+            **kw
         )
