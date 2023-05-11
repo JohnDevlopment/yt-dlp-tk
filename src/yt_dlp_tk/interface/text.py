@@ -71,7 +71,6 @@ class ExText(tk.Text, _WidgetMixin):
         # Custom resources
         def _default_bg(color: str | None, *state_flags: str):
             defbg = ttk.Style().lookup('TEntry', 'fieldbackground', state_flags)
-            print(state_flags, defbg, color)
             return color or defbg
 
         self.set_custom_resources(
