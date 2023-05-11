@@ -275,6 +275,12 @@ class YtdlptkInterface(tk.Tk):
 
         cast(ExTree, widgets.trFormats).clear()
 
+        entry = cast(ExEntry, widgets.enVideo)
+        entry.delete(0, tkconst.END)
+
+        entry = cast(ExEntry, widgets.enAudio)
+        entry.delete(0, tkconst.END)
+
         # Reset radiobuttons
         StringVar(name='CHAPTERS').set('none')
         for rb in self.widgets.chapters:
