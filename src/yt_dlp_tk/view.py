@@ -27,6 +27,12 @@ class Column:
 class YtdlptkInterface(tk.Tk):
     DEFAULT_LABEL = "." * 75
 
+    def __init__(self, screen_name: str | None=None, basename: str | None=None,
+                 class_name: str='Tk', use_tk: bool=True, sync: bool=False,
+                 use: str | None=None):
+        super().__init__(screen_name, basename, class_name, use_tk, sync, use)
+        self.title("Yt-dlp Tk Interface")
+
     def create_interface(self, presenter: Presenter) -> None:
         widgets = attr_dict()
         self.widgets = widgets
