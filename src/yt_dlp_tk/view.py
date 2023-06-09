@@ -7,9 +7,11 @@ from .interface import ExEntry, ExTree
 from .interface.utils import TkBusyCommand, InState, StringVar
 from .protocols import Presenter
 from .logging import get_logger
+from .data import Settings
 from tkinter import ttk, constants as tkconst
 from dataclasses import dataclass
 from typing import cast
+from pathlib import Path
 import tkinter as tk, time
 
 @dataclass
@@ -34,6 +36,9 @@ class YtdlptkInterface(tk.Tk):
         self.title("Yt-dlp Tk Interface")
 
     def create_interface(self, presenter: Presenter) -> None:
+        # Register the exit hook
+        self.protocol("WM_DELETE_WINDOW", presenter.exit)
+
         widgets = attr_dict()
         self.widgets = widgets
 
@@ -144,8 +149,35 @@ class YtdlptkInterface(tk.Tk):
         tree.on_item_doubleclicked.connect(self)
         widgets.trFormats = tree
 
+        # Define settings frame
+        self.__settings_tab()
+
         # Add frames to notebook
         nb.add(widgets.frDownloadVideos, text="Video Downloader")
+        nb.add(self.widgets.frSettings, text="Settings")
+
+    def __settings_tab(self) -> ttk.Frame:
+        frame = ttk.Frame()
+        frame.pack(fill=tkconst.BOTH, expand=True)
+        self.widgets.frSettings = frame
+
+        entry = ExEntry(frame, text="Download Path")
+        entry.grid(row=0, column=0)
+        self.widgets.enDownloadPath = entry
+
+        # Button that lets the user choose a directory
+        def _browse_dir() -> None:
+            from tkinter.filedialog import askdirectory
+            settings = self.get_settings()
+            d = askdirectory(initialdir=str(settings.download_path), parent=frame, title="Choose Download Path")
+            if d:
+                settings.download_path = Path(d)
+                self.update_settings(settings)
+
+        ttk.Button(frame, text="Browse...", command=_browse_dir).grid(row=0, column=1)
+
+        return frame
+
 
     def on_notify(self, sig: str, obj: ExTree, *args, **kw: str):
         logger = get_logger('view.signals')
@@ -201,6 +233,27 @@ class YtdlptkInterface(tk.Tk):
         return {
             "chapters": StringVar(name='CHAPTERS').get()
         }
+
+    ###
+
+    # Settings
+    #
+
+    def get_settings(self):
+        # The download path
+        download_path = cast(ExEntry, self.widgets.enDownloadPath).get()
+        download_path = Path(download_path)
+        if not download_path.exists() or not download_path.exists():
+            download_path = Path(".")
+
+        return Settings(
+            download_path.resolve()
+        )
+
+    def update_settings(self, settings: Settings):
+        entry: ExEntry = self.widgets.enDownloadPath
+        entry.delete(0, tkconst.END)
+        entry.insert(0, str(settings.download_path))
 
     ###
 

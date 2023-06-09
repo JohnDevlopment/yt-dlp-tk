@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from typing import Any
     from .utils import Result
     from .yt_funcs.core import VideoInfo, YTErrors
+    from .data import Settings
 
 class Presenter(Protocol):
     def __init__(self, model: Model, view: View) -> None: ...
@@ -19,6 +20,10 @@ class Presenter(Protocol):
 
     def download_video(self) -> None:
         """Download the video. Calls Model."""
+        ...
+
+    def exit(self) -> None:
+        """Exit the application."""
         ...
 
 class Model(Protocol):
@@ -42,6 +47,22 @@ class Model(Protocol):
 
     def clear_video_info(self) -> None:
         """Clears video info."""
+        ...
+
+    # Methods/properties for saving and loading settings
+    #
+
+    def save_settings(self, settings: Settings) -> None:
+        """Save settings to config file."""
+        ...
+
+    def read_settings(self) -> None:
+        """Read the settings from the configuration file."""
+        ...
+
+    @property
+    def settings(self) -> Settings:
+        """Loaded settings."""
         ...
 
 class View(Protocol):
@@ -75,6 +96,14 @@ class View(Protocol):
         """Format specifier."""
         ...
 
+    def get_settings(self) -> Settings:
+        """Get the options defined in the settings tab."""
+        ...
+
+    def update_settings(self, settings: Settings) -> None:
+        """Update the interface with SETTINGS."""
+        ...
+
     def get_download_options(self) -> dict[str, Any]:
         """
         Return options for downloading the video.
@@ -83,6 +112,10 @@ class View(Protocol):
             * chapters - {none, split, embed} specifies how
                          to handle video chapters
         """
+        ...
+
+    def quit(self) -> None:
+        """Exit the interface."""
         ...
 
 class CustomLogger(Protocol):
