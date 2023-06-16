@@ -92,11 +92,6 @@ class TestClasses:
         assert fsz.unit == expunit
         assert str(fsz) == expstr
 
-    # def test_VideoInfo(self):
-    #     # TODO: finish this test
-    #     vi = VideoInfo(False, "...", "No Title", 0,
-    #                    Duration(0, 1, 10), "")
-
     @pytest.mark.parametrize("dct,expected", [
         (
             {
