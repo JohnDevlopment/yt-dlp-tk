@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 name = "yt-dlp-tk"
 dynamic = ["version", "description"]
 requires-python = ">=3.10"
-license.file = "MIT"
+license.file = "LICENSE"
 authors = [
     { name = "John Russell", email = "johndevlopment7@gmail.com" }
 ]
