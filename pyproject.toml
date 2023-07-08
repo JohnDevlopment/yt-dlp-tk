@@ -11,7 +11,7 @@ authors = [
     { name = "John Russell", email = "johndevlopment7@gmail.com" }
 ]
 classifiers = ["Private :: Do Not Upload"]
-dependencies = ["yt-dlp"]
+dependencies = ["yt-dlp", "jsnake"]
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov"]
