@@ -7,6 +7,7 @@ name = "yt-dlp-tk"
 dynamic = ["version", "description"]
 requires-python = ">=3.10"
 license.file = "LICENSE"
+readme = "README.md"
 authors = [
     { name = "John Russell", email = "johndevlopment7@gmail.com" }
 ]
