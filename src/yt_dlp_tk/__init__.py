@@ -1,7 +1,7 @@
 """Yt-dlp-tk interface"""
 
-from .logging import _init_root_logger
+from jsnake.logging import init
 
 __version__ = "0.2"
 
-_init_root_logger()
+init("yt-dlp-tk")

@@ -6,7 +6,7 @@ from .utils import InvalidSignal, attr_dict
 from .interface import ExEntry, ExTree
 from .interface.utils import TkBusyCommand, InState, StringVar
 from .protocols import Presenter
-from .logging import get_logger
+from jsnake.logging import get_logger
 from .data import Settings
 from tkinter import ttk, constants as tkconst
 from dataclasses import dataclass

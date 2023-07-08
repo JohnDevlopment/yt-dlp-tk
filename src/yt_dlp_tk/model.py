@@ -3,7 +3,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from .utils import Result
-from .logging import get_logger
+from jsnake.logging import get_logger
 from .yt_funcs.core import extract_video_info, download_video, VideoInfo, YTErrors
 from yt_dlp.utils import DownloadError
 from .data import zipped_info, Settings

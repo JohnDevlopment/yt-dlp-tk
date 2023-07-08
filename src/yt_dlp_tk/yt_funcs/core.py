@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from yt_dlp import YoutubeDL, postprocessor
-from ..logging import get_logger
+from jsnake.logging import get_logger
 from ..utils import ErrorEnum, unique
 from ..protocols import CustomLogger
 from .postprocessing import RenameFixFilePP

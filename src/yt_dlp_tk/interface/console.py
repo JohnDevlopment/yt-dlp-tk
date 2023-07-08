@@ -3,7 +3,7 @@
 from __future__ import annotations
 from . import ExText
 from .utils import InState
-from ..logging import get_logger, add_handler
+from jsnake.logging import get_logger, add_handler
 from ..signals import signal
 from tkinter import ttk, Misc, constants as tkconst, Toplevel
 from typing import TYPE_CHECKING, cast

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from .logging import get_logger, add_handler
+from jsnake.logging import get_logger
 from .interface.console import ConsoleWindow
 
 if TYPE_CHECKING:

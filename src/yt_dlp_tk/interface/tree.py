@@ -1,7 +1,7 @@
 from __future__ import annotations
 from tkinter import ttk, constants as tkconst
 from .utils import _WidgetMixin, _Column
-from ..logging import get_logger
+from jsnake.logging import get_logger
 from ..signals import signal, InvalidSignalError
 from typing import TYPE_CHECKING, cast
 import tkinter as tk
