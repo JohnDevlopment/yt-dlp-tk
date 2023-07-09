@@ -110,9 +110,22 @@ class YtdlptkInterface(tk.Tk):
         button.pack()
         widgets.btSearch = button
 
-         # Video field labels
+        # Video field labels
         subframe = ttk.Frame(frame)
         subframe.pack()
+
+        def _copy_label(event: tk.Event[ttk.Label]) -> None:
+            # Copies the contents of label to the clipboard
+            widget = event.widget
+
+            # Get label text
+            text: str = widget.cget('text')
+
+            # Replace the clipboard contents with the text
+            widget.clipboard_clear()
+            widget.clipboard_append(text)
+
+            statusbar.set("Label copied", 3)
 
         LABELS: list[tuple[str, str]] = [
             ("Title", 'lbTitle'),
@@ -122,14 +135,24 @@ class YtdlptkInterface(tk.Tk):
         ]
 
         for i, elt in enumerate(LABELS):
+            # Text label and widget
             text, widget = elt
+
+            # Left label that shows the name of the field
             ttk.Label(subframe, text=text, anchor=tkconst.E, padding="0 0 8")\
                .grid(row=i, column=0, sticky='w')
 
+            # Label that contains the field's value
             label = ttk.Label(subframe, anchor=tkconst.CENTER, text=self.DEFAULT_LABEL,
                               width=100, relief=tkconst.SUNKEN)
+            # Map the label rightward of the other label
             label.grid(row=i, column=1, sticky='w')
+
+            # Save the label
             widgets[widget] = label
+
+            # Bind right-click to copy past function
+            label.bind("<3>", lambda e: _copy_label(e))
 
          # Format field entries
         subframe = ttk.Frame(frame)
