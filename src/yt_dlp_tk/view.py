@@ -14,6 +14,52 @@ from typing import cast
 from pathlib import Path
 import tkinter as tk, time
 
+class Statusbar(ttk.Frame):
+    """A statusbar."""
+
+    def __init__(self, master) -> None:
+        super().__init__(master, relief=tk.SUNKEN)
+        self.label = ttk.Label(self)
+        self.label.pack(side=tk.LEFT)
+        self.pack(fill=tk.X, side=tk.BOTTOM)
+        self.timer = ""
+
+    def set(self, text: str, timer: float | None=None) -> None:
+        """
+        Set the message.
+
+        If TIMER is a number greater than zero, a timer is set,
+        after which the message is cleared.
+        """
+        # This also stops the timer, if one is active
+        self.clear()
+
+        # Set the label text
+        self.label.config(text=text)
+
+        if timer is not None and timer > 0.0:
+            # Calculate milliseconds
+            seconds = int(timer * 1000.0)
+            # Set the timer
+            self.timer = self.after(seconds, self.__on_timer_cleared)
+
+    def clear(self) -> None:
+        """Clear the message."""
+        self.label.config(text="")
+
+        # Timer is activate
+        if self.timer:
+            # Cancel timer
+            self.after_cancel(self.timer)
+
+            # Invalidate timer identifier
+            self.timer = ""
+
+    def __on_timer_cleared(self) -> None:
+        # Timer has cleared
+        self.timer = ""
+        self.clear()
+
 @dataclass
 class Column:
     """Column specifier."""
@@ -156,6 +202,12 @@ class YtdlptkInterface(tk.Tk):
         nb.add(widgets.frDownloadVideos, text="Video Downloader")
         nb.add(self.widgets.frSettings, text="Settings")
 
+        # Create statusbar
+        statusbar = Statusbar(widgets.frMain)
+        widgets.statusbar = statusbar
+
+        statusbar.set("Interface loaded", 3)
+
     def __settings_tab(self) -> ttk.Frame:
         frame = ttk.Frame()
         frame.pack(fill=tkconst.BOTH, expand=True)
@@ -177,7 +229,6 @@ class YtdlptkInterface(tk.Tk):
         ttk.Button(frame, text="Browse...", command=_browse_dir).grid(row=0, column=1)
 
         return frame
-
 
     def on_notify(self, sig: str, obj: ExTree, *args, **kw: str):
         logger = get_logger('view.signals')
