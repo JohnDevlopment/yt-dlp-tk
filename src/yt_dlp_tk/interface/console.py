@@ -1,10 +1,11 @@
 """Display a toplevel window with a console."""
 
 from __future__ import annotations
-from . import ExText
-from .utils import InState
+from jsnake.interface import ExText
+from jsnake.interface.utils import InState
 from jsnake.logging import get_logger, add_handler
-from ..signals import signal
+# from ..signals import signal
+from jsnake.signals import signal
 from tkinter import ttk, Misc, constants as tkconst, Toplevel
 from typing import TYPE_CHECKING, cast
 
@@ -140,7 +141,7 @@ def test ():
     console.on_close.connect(on_close, button=button)
     add_handler(
         get_logger('tests.gui.console', stream=False),
-        'stream', stream=console)
+        'stream', stream=console) # pyright: ignore
     console.close()
     del console
 

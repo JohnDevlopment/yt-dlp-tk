@@ -3,8 +3,8 @@
 from __future__ import annotations
 from .yt_funcs.core import VideoInfo, FormatType
 from .utils import InvalidSignal, attr_dict
-from .interface import ExEntry, ExTree
-from .interface.utils import TkBusyCommand, InState, StringVar
+from jsnake.interface import ExEntry, ExTree
+from jsnake.interface.utils import TkBusyCommand, InState, StringVar
 from .protocols import Presenter
 from jsnake.logging import get_logger
 from .data import Settings
@@ -177,7 +177,8 @@ class YtdlptkInterface(tk.Tk):
           # Radio buttons: chapters
         var = StringVar(master=frame, name='CHAPTERS', value='none')
 
-        widgets.chapters = []
+           # Define a list of chapter radiobutton widgets
+        widgets['chapters'] = []
 
         rb = ttk.Radiobutton(subframe, variable=var, value='none',
                              text="No chapters", state='disabled')
@@ -194,7 +195,6 @@ class YtdlptkInterface(tk.Tk):
         rb.grid(row=0, column=2)
         widgets.chapters.append(rb)
 
-         # Treeview
         COLUMNS = [
             Column('Cid', "ID"),
             Column('Cformat', "Format"),

@@ -7,7 +7,6 @@ directly from this module.
 >>> from yt_dlp_tk.interface import ExEntry, ExText, ExTree
 """
 
-from __future__ import annotations
-from .text import ExText # pyright: ignore
-from .entry import ExEntry # pyright: ignore
-from .tree import ExTree # pyright: ignore
+# from .text import ExText # pyright: ignore
+# from .entry import ExEntry # pyright: ignore
+# from .tree import ExTree # pyright: ignore

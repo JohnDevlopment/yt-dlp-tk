@@ -1,4 +1,4 @@
-"""Yt-dlp-tk interface"""
+"""Yt-dlp-tk interface."""
 
 from jsnake.logging import init
 
