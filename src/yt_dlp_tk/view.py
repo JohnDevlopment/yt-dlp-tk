@@ -3,7 +3,7 @@
 from __future__ import annotations
 from .yt_funcs.core import VideoInfo, FormatType
 from .utils import InvalidSignal, attr_dict
-from jsnake.interface import ExEntry, ExTree
+from jsnake.interface.widgets import ExEntry, ExTree
 from jsnake.interface.utils import TkBusyCommand, InState, StringVar
 from .protocols import Presenter
 from jsnake.logging import get_logger
