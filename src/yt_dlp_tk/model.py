@@ -39,6 +39,9 @@ class Model:
 
         return Result(self.video_info, YTErrors.OK)
 
+    def cleanup(self):
+        pass
+
     def clear_video_info(self):
         self.video_info = None
 

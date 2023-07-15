@@ -28,14 +28,18 @@ class Presenter:
     def run(self) -> None:
         self.view.mainloop()
 
-    def exit(self):
+    def shutdown(self):
         logger = get_logger('backend')
+
+        logger.info("Shutting down backend...")
 
         logger.debug("Writing settings to file.")
         settings = self.view.get_settings()
         self.model.save_settings(settings)
 
-        logger.debug("Exiting...")
+        self.view.cleanup()
+        self.model.cleanup()
+
         self.view.quit()
 
     def get_video_info(self) -> None:

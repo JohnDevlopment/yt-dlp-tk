@@ -83,7 +83,7 @@ class YtdlptkInterface(tk.Tk):
 
     def create_interface(self, presenter: Presenter) -> None:
         # Register the exit hook
-        self.protocol("WM_DELETE_WINDOW", presenter.exit)
+        self.protocol("WM_DELETE_WINDOW", presenter.shutdown)
 
         widgets = attr_dict()
         self.widgets = widgets
@@ -230,6 +230,9 @@ class YtdlptkInterface(tk.Tk):
         widgets.statusbar = statusbar
 
         statusbar.set("Interface loaded", 3)
+
+    def cleanup(self):
+        pass
 
     def __settings_tab(self) -> ttk.Frame:
         frame = ttk.Frame()
@@ -396,15 +399,18 @@ class YtdlptkInterface(tk.Tk):
     def clear_video_info(self):
         widgets = self.widgets
 
+        # Reset labels to their default labels
         for temp in ['lbTitle', 'lbLength', 'lbAgegate', 'lbChaptered']:
             label = cast(ttk.Label, widgets[temp])
             label.config(text=self.DEFAULT_LABEL)
 
+        # Clear text from widgets
+        # Clear tree widget
         cast(ExTree, widgets.trFormats).clear()
-
+        # Clear video format entry
         entry = cast(ExEntry, widgets.enVideo)
         entry.delete(0, tkconst.END)
-
+        # Clear audio format entry
         entry = cast(ExEntry, widgets.enAudio)
         entry.delete(0, tkconst.END)
 

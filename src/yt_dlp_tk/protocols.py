@@ -22,8 +22,12 @@ class Presenter(Protocol):
         """Download the video. Calls Model."""
         ...
 
-    def exit(self) -> None:
-        """Exit the application."""
+    def shutdown(self) -> None:
+        """
+        Shutdown the application.
+
+        Call this at the end of the program to cleanup resources.
+        """
         ...
 
 class Model(Protocol):
@@ -47,6 +51,10 @@ class Model(Protocol):
 
     def clear_video_info(self) -> None:
         """Clears video info."""
+        ...
+
+    def cleanup(self) -> None:
+        """Cleanup method."""
         ...
 
     # Methods/properties for saving and loading settings
@@ -114,8 +122,12 @@ class View(Protocol):
         """
         ...
 
+    def cleanup(self) -> None:
+        """Cleanup method."""
+        ...
+
     def quit(self) -> None:
-        """Exit the interface."""
+        """Quit the interface."""
         ...
 
 class CustomLogger(Protocol):
