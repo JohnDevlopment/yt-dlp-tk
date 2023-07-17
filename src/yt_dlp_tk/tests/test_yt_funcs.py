@@ -1,5 +1,8 @@
 # from ..yt_funcs import core as yt_funcs_core
-from ..yt_funcs.core import Format, FormatType, Duration, YoutubeDL, extract_video_info, Filesize
+from ..yt_funcs.core import (
+    Format, Duration, YoutubeDL, Filesize, Thumbnail,
+    extract_video_info
+)
 from ..utils import get_env
 from pathlib import Path
 from typing import Any, cast
@@ -148,6 +151,28 @@ class TestClasses:
 
         assert fmt.codecs == codecs
         assert math.isclose(fmt.bitrate, br)
+
+    @pytest.mark.parametrize("dct,expected", [
+        (
+            {
+                'url': "https://i.aimg.com/img/gkjsakl/hqdefault.jpg?sga=swg&rsp=gdds",
+                'width': 80,
+                'height': 40
+            },
+            "JPG 80x40"
+        ),
+        (
+            {
+                'url': "https://i.aimg.com/img/gkjsakl/sddefault.webp",
+                'width': 50,
+                'height': 20
+            },
+            "WEBP 50x20"
+        )
+    ])
+    def test_Thumbnail(self, dct: dict[str, Any], expected: str):
+        thumbnail = Thumbnail.create(dct)
+        assert str(thumbnail) == expected, f"mismatching string reps"
 
 def test_info_json(monkeypatch: pytest.MonkeyPatch, info_json: dict[str, Any]):
     def _extract_video_info(self, url, download): # pyright: ignore

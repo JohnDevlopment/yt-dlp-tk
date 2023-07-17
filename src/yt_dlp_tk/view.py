@@ -1,7 +1,7 @@
 # Interface class, the View of MVP.
 
 from __future__ import annotations
-from .yt_funcs.core import VideoInfo, FormatType
+from .yt_funcs.core import VideoInfo, FormatType, Thumbnail
 from .utils import InvalidSignal, attr_dict
 from jsnake.interface.widgets import ExEntry, ExTree
 from jsnake.interface.utils import TkBusyCommand, InState, StringVar
@@ -82,6 +82,8 @@ class YtdlptkInterface(tk.Tk):
         self.title("Yt-dlp Tk Interface")
 
     def create_interface(self, presenter: Presenter) -> None:
+        self.thumbnails: dict[str, Thumbnail] = {}
+
         # Register the exit hook
         self.protocol("WM_DELETE_WINDOW", presenter.shutdown)
 
@@ -220,10 +222,12 @@ class YtdlptkInterface(tk.Tk):
 
         # Define settings frame
         self.__settings_tab()
+        self.__thumbnails_tab(presenter)
 
         # Add frames to notebook
         nb.add(widgets.frDownloadVideos, text="Video Downloader")
-        nb.add(self.widgets.frSettings, text="Settings")
+        nb.add(widgets.frSettings, text="Settings")
+        nb.add(widgets.frThumbnails, text="Thumbnails")
 
         # Create statusbar
         statusbar = Statusbar(widgets.frMain)
@@ -233,6 +237,69 @@ class YtdlptkInterface(tk.Tk):
 
     def cleanup(self):
         pass
+
+    def __thumbnails_tab(self, presenter: Presenter) -> None:
+        widgets = self.widgets
+
+        # Frame
+        frame = ttk.Frame()
+        frame.pack(fill=tk.BOTH, expand=True)
+        widgets.frThumbnails = frame
+
+        # Label that displays an image
+        label = ttk.Label(frame)
+        label.pack()
+        widgets.lbThumbnail = label
+
+        # The image displayed on the label
+        self._thumbnail = None
+
+        def _combobox_command(event: tk.Event[ttk.Combobox]) -> None:
+            # Display an image from file/url
+            logger = get_logger('gui.events')
+
+            cbox = event.widget
+
+            key = cbox.get()
+            logger.info("Thumbnail selected: %s", key)
+
+            # Skip if no text in box
+            if not key:
+                return
+
+            th = self.thumbnails[key]
+
+            # load image
+            from PIL import UnidentifiedImageError
+            try:
+                img = presenter.load_image(th.url)
+            except (FileNotFoundError, UnidentifiedImageError):
+                logger.error("Error loading image.", exc_info=True)
+                return
+
+            # TODO: display thumbnail on label
+            label: ttk.Label = widgets.lbThumbnail
+            label.configure(image=img)
+            self._thumbnail = img
+
+        # Combobox that lists available thumbnails
+        cbox = ttk.Combobox(frame, state='readonly')
+        cbox.pack()
+        widgets['cxThumbnails'] = cbox
+
+        # Display a thumbnail when something is selected
+        cbox.bind("<<ComboboxSelected>>", _combobox_command, True)
+
+        # DEBUG: Click button to load pickled image
+        if __debug__:
+            def _dbg_load_img():
+                # Load image
+                self._thumbnail = presenter.load_image("pickled")
+                # Display image
+                label: ttk.Label = self.widgets['lbThumbnail']
+                label.configure(image=self._thumbnail)
+
+            ttk.Button(frame, text="Load Pickled Image", command=_dbg_load_img).pack()
 
     def __settings_tab(self) -> ttk.Frame:
         frame = ttk.Frame()
@@ -396,7 +463,13 @@ class YtdlptkInterface(tk.Tk):
                               str(fmt.filesize), fmt.bitrate)
                     tree.insert('Ivideo', 'end', values=values)
 
+        # Thumbnails
+        cbox: ttk.Combobox = widgets.cxThumbnails
+        cbox.configure(values=[str(th) for th in info.thumbnails])
+        self.thumbnails = {str(th): th for th in info.thumbnails}
+
     def clear_video_info(self):
+        # Called by Presenter
         widgets = self.widgets
 
         # Reset labels to their default labels
@@ -418,5 +491,14 @@ class YtdlptkInterface(tk.Tk):
         StringVar(name='CHAPTERS').set('none')
         for rb in self.widgets.chapters:
             cast(ttk.Radiobutton, rb).state(('disabled',))
+
+        # Remove thumbnail
+        label: ttk.Label = widgets.lbThumbnail
+        label.configure(image="")
+
+        # Reset thumbnails combobox
+        cbox: ttk.Combobox = widgets.cxThumbnails
+        cbox.configure(values=[])
+        self.thumbnails.clear()
 
         self.update()

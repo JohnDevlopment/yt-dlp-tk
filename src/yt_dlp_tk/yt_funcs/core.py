@@ -8,7 +8,7 @@ from ..protocols import CustomLogger
 from .postprocessing import RenameFixFilePP
 from enum import Enum
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING, overload, cast
 import math
 
 if TYPE_CHECKING:
@@ -89,6 +89,44 @@ class Filesize:
             i += 1
 
         return cls(round(value, 2), suffixes[i], raw_size, approximate)
+
+@dataclass(slots=True)
+class Thumbnail:
+    """Represents a thumbnail."""
+
+    url: str
+    extension: str
+    resolution: tuple[int, int]
+
+    @classmethod
+    def create(cls, d: dict[str, Any]) -> Self:
+        """Create a Thumbnail from D."""
+        import os.path
+
+        # URL
+        url: str = d['url']
+        url_tail = os.path.basename(url)
+        if (idx := url_tail.find("?")) > 0:
+            # Remove the substring starting at the '?'
+            url_tail = url_tail[0:idx]
+
+        kw: dict[str, Any] = {
+            'url': url,
+            'extension': os.path.splitext(url_tail)[1][1:]
+        }
+
+        # Resolution
+        if 'width' in d and 'height' in d:
+            width, height = int(d['width']), int(d['height'])
+            kw['resolution'] = (width, height)
+        else:
+            kw['resolution'] = (0, 0)
+
+        return cls(**kw)
+
+    def __str__(self) -> str:
+        w, h = self.resolution
+        return f"{self.extension.upper()} {w}x{h}"
 
 @unique
 class FormatType(Enum):
@@ -207,11 +245,12 @@ class VideoInfo:
     formats: list[Format]
     _live_status: str
     has_chapters: bool = False
+    thumbnails: list[Thumbnail] = field(default_factory=list)
     chapters: list[Chapter] = field(default_factory=list)
 
     @classmethod
     def create(cls, opts: dict[str, Any]) -> Self:
-        import itertools
+        import itertools, os.path
 
         kw: dict[str, Any] = {}
 
@@ -224,6 +263,9 @@ class VideoInfo:
             duration=Duration.convert(opts.get('duration', 0)),
             age_limit=opts['age_limit']
         )
+
+        # Thumbnails
+        kw['thumbnails'] = [Thumbnail.create(dct) for dct in opts['thumbnails']]
 
         # Get a list of formats associated with the video
         gen1 = (Format.create(dct) for dct in opts['formats'])
@@ -330,13 +372,17 @@ def extract_video_info(url, json=False):
     }
 
     logger.info("Extracting info for %s", url)
+
     with YoutubeDL(opts) as ydl:
+        # Extract info from URL
         info = YoutubeDL.sanitize_info(
             ydl.extract_info(url, download=False))
+
     assert isinstance(info, dict)
 
     logger.info("Extracted info for video ID")
 
     if json:
         return info
+
     return VideoInfo.create(info)

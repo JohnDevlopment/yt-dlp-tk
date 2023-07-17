@@ -6,6 +6,8 @@ if TYPE_CHECKING:
     from .utils import Result
     from .yt_funcs.core import VideoInfo, YTErrors
     from .data import Settings
+    from PIL import Image, ImageTk
+    from pathlib import Path
 
 class Presenter(Protocol):
     def __init__(self, model: Model, view: View) -> None: ...
@@ -20,6 +22,32 @@ class Presenter(Protocol):
 
     def download_video(self) -> None:
         """Download the video. Calls Model."""
+        ...
+
+    def load_image(self, img_path: str | Path) -> ImageTk.PhotoImage:
+        """
+        Load an image.
+
+        IMG_PATH is either a valid filesystem path or a
+        valid URL. If IMG_PATH is a URL, then `requests`
+        is used to stream the image to an Image.Image object,
+        otherwise it is loaded from harddisk.
+
+        If VERIFY is true, this function attempts to verify
+        the image before doing any loading. If the verification
+        fails, the appropriate exception is raised.
+
+        WARNING: At present, VERIFY only works on local files.
+
+        Raises:
+            * FileNotFoundError - the file cannot be found
+            * PIL.UnidentifiedImageError -- the image cannot be
+                                            opened and identified
+        """
+        ...
+
+    def clear_image_cache(self) -> None:
+        """Clear the image cache."""
         ...
 
     def shutdown(self) -> None:
@@ -55,6 +83,35 @@ class Model(Protocol):
 
     def cleanup(self) -> None:
         """Cleanup method."""
+        ...
+
+    # Methods/properties for loading images
+    #
+
+    def load_image(self, img_path: str | Path, verify: bool=False) -> Image.Image:
+        """
+        Load an image.
+
+        IMG_PATH is either a valid filesystem path or a
+        valid URL. If IMG_PATH is a URL, then `requests`
+        is used to stream the image to an Image.Image object,
+        otherwise it is loaded from harddisk.
+
+        If VERIFY is true, this function attempts to verify
+        the image before doing any loading. If the verification
+        fails, the appropriate exception is raised.
+
+        WARNING: At present, VERIFY only works on local files.
+
+        Raises:
+            * FileNotFoundError - the file cannot be found
+            * PIL.UnidentifiedImageError -- the image cannot be
+                                            opened and identified
+        """
+        ...
+
+    def clear_image_cache(self) -> None:
+        """Clear the image cache."""
         ...
 
     # Methods/properties for saving and loading settings
